@@ -29,4 +29,7 @@
     <PackageReference Include="System.IO.Abstractions" Version="7.0.7" />
     <PackageReference Include="YamlDotNet" Version="6.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="StyleCop.Analyzers" Version="1.1.118" />
+  </ItemGroup>
 </Project>
