@@ -241,4 +241,11 @@
 			<version>2.0.27</version>
 		</dependency>
 	</dependencies>
+	<repositories>
+		<repository>
+			<id>dcm4che</id>
+			<name>dcm4che</name>
+			<url>https://www.dcm4che.org/maven2/</url>
+		</repository>
+	</repositories>
 </project>
