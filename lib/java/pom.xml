@@ -13,16 +13,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>dat</groupId>
-			<artifactId>dcm4che</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>dat</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>dat</groupId>
 			<artifactId>CTP</artifactId>
 			<version>1.0</version>
 		</dependency>
@@ -34,11 +24,6 @@
 		<dependency>
 			<groupId>dat</groupId>
 			<artifactId>pixelmed_codec</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>dat</groupId>
-			<artifactId>dcm4che-imageio-rle-2.0.25</artifactId>
 			<version>1.0</version>
 		</dependency>
 		<dependency>

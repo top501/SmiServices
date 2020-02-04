@@ -14,8 +14,6 @@
 	<name>SMI Microservices Common</name>
 
 	<artifactId>common</artifactId>
-	<version>1.0.0</version>
-
 	<packaging>jar</packaging>
 
 	<properties>
