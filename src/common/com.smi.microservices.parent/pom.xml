@@ -244,6 +244,7 @@
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<type>pom</type>
+			<version>2.13.0</version>
 		</dependency>
 	</dependencies>
 	<repositories>
