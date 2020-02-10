@@ -100,6 +100,9 @@ namespace Smi.Common
             if (ShutdownCalled)
                 throw new ApplicationException("Adapter has been shut down");
 
+            if (consumerOptions == null)
+                throw new ArgumentNullException(nameof(consumerOptions));
+
             if (!consumerOptions.VerifyPopulated())
                 throw new ArgumentException("The given ConsumerOptions has invalid values");
 
@@ -108,8 +111,8 @@ namespace Smi.Common
 
             IConnection connection = _factory.CreateConnection(label);
 
-            connection.ConnectionBlocked += (s, a) => _logger.Warn("ConnectionBlocked for " + consumerOptions.QueueName + " ( Reason: " + a.Reason + ")");
-            connection.ConnectionUnblocked += (s, a) => _logger.Warn("ConnectionUnblocked for " + consumerOptions.QueueName);
+            connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked for {consumerOptions.QueueName} ( Reason: {a.Reason})");
+            connection.ConnectionUnblocked += (s, a) => _logger.Warn($"ConnectionUnblocked for {consumerOptions.QueueName}");
 
             IModel model = connection.CreateModel();
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
@@ -126,7 +129,7 @@ namespace Smi.Common
                 model.Close(200, "StartConsumer - Queue missing");
                 connection.Close(200, "StartConsumer - Queue missing");
 
-                throw new ApplicationException("Expected queue \"" + consumerOptions.QueueName + "\" to exist", e);
+                throw new ApplicationException($"Expected queue \"{consumerOptions.QueueName}\" to exist", e);
             }
 
             if (isSolo && model.ConsumerCount(consumerOptions.QueueName) > 0)
@@ -134,7 +137,7 @@ namespace Smi.Common
                 model.Close(200, "StartConsumer - Already a consumer on the queue");
                 connection.Close(200, "StartConsumer - Already a consumer on the queue");
 
-                throw new ApplicationException("Already a consumer on queue " + consumerOptions.QueueName + " and solo consumer was specified");
+                throw new ApplicationException($"Already a consumer on queue {consumerOptions.QueueName} and solo consumer was specified");
             }
 
             Subscription subscription = null;
@@ -162,7 +165,7 @@ namespace Smi.Common
                 catch (OperationInterruptedException e)
                 {
                     throw new ApplicationException(
-                        "Error when creating subscription on queue \"" + consumerOptions.QueueName + "\"", e);
+                        $"Error when creating subscription on queue \"{consumerOptions.QueueName}\"", e);
                 }
                 finally
                 {
@@ -200,7 +203,7 @@ namespace Smi.Common
             };
 
             consumerTask.Start();
-            _logger.Debug($"Consumer task started [ID={consumerTask.Id}]");
+            _logger.Debug($"Consumer task started [QueueName={subscription.QueueName}]");
 
             return taskId;
         }
@@ -223,7 +226,7 @@ namespace Smi.Common
                 var res = (ConsumerResources)_rabbitResources[taskId];
 
                 if (!res.Shutdown(timeout))
-                    throw new ApplicationException("Consume task did not exit in time: " + res.Subscription.ConsumerTag);
+                    throw new ApplicationException($"Consume task did not exit in time: {res.Subscription.ConsumerTag}");
 
                 _rabbitResources.Remove(taskId);
             }
@@ -261,7 +264,7 @@ namespace Smi.Common
                 model.Close(200, "SetupProducer - Exchange missing");
                 connection.Close(200, "SetupProducer - Exchange missing");
 
-                throw new ApplicationException("Expected exchange \"" + producerOptions.ExchangeName + "\" to exist", e);
+                throw new ApplicationException($"Expected exchange \"{producerOptions.ExchangeName}\" to exist", e);
             }
 
             IBasicProperties props = model.CreateBasicProperties();
@@ -365,7 +368,7 @@ namespace Smi.Common
                 }
 
                 if (!exitOk)
-                    throw new ApplicationException("Some consumer tasks did not exit in time: " + string.Join(", ", failedToExit));
+                    throw new ApplicationException($"Some consumer tasks did not exit in time: {string.Join(", ", failedToExit)}");
 
                 _rabbitResources.Clear();
             }
@@ -426,7 +429,7 @@ namespace Smi.Common
                         version, MinRabbitServerVersionMajor, MinRabbitServerVersionMinor, MinRabbitServerVersionPatch));
                     }
 
-                    _logger.Debug("Connected to RabbitMQ server version " + version);
+                    _logger.Debug($"Connected to RabbitMQ server version {version}");
                 }
             }
             catch (BrokerUnreachableException e)
@@ -502,7 +505,7 @@ namespace Smi.Common
                     Dispose();
                 }
 
-                Logger.Debug($"Consumer task shutdown [ID={ConsumerTask.Id}]");
+                Logger.Debug($"Consumer task shutdown [QueueName={Subscription.QueueName}]");
 
                 return exitOk;
             }

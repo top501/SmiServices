@@ -1,4 +1,4 @@
-﻿
+
 // ReSharper disable InconsistentlySynchronizedField
 
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
@@ -45,8 +45,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
             _exceptionCallback = exceptionCallback;
             _notifier = new JobCompleteNotifier(options);
 
-            //TODO Validate tickrate is sensible
-            _processTimer = new SysTimers.Timer(options.JobWatcherTickrate * 1000);
+            _processTimer = new SysTimers.Timer(TimeSpan.FromSeconds(options.JobWatcherTimeoutInSeconds).TotalMilliseconds);
             _processTimer.Elapsed += TimerElapsedEvent;
         }
 
@@ -133,11 +132,6 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
                 throw new ApplicationException("The given job info has no file collections set");
 
             bool doneProcessing = CheckJobFiles(jobInfo);
-
-            //FIXME: What does this ticket reference?
-            //TODO: Check counts
-            //NOTE: (https://jira-hic.cmdn.dundee.ac.uk/browse/RDMPIMG-153?focusedCommentId=46918&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-46918)
-
             if (!doneProcessing)
             {
                 _logger.Debug("Some expected files missing for job " + jobInfo.ExtractionJobIdentifier);

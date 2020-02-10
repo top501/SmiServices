@@ -1,4 +1,3 @@
-
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -9,14 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- \[Breaking\] Updated RabbitMQ extraction config to match extraction plan v2
 - Refactor Java exception handling and use of threads
+- `TessDirectory` option in [IsIdentifiable] now expects tesseract models file to exist (no longer downloads it on demand)
 
 ### Added
 
-- Added new microservice IsIdentifiable which scans for personally identifiable information (in databases and dicom files)
-- Added support for custom rules in IsIdentifiable (entered in `Rules.yaml`)
+- Added new microservice [IsIdentifiable] which scans for personally identifiable information (in databases and dicom files)
+- IsIdentifiable runs standalone or as a service in the extraction pipeline (where it validates anonymised files)
+- Added support for custom rules in [IsIdentifiable] (entered in `Rules.yaml`)
   - Rules are applied in the order they appear in this file
   - Rules are applied before any other classifiers (i.e. to allow whitelisting rules)
+- Addeed support for outsourcing classification (e.g. NLP) to other processes via TCP (entered in [SocketRules] in `Rules.yaml`)
+- IsIdentifiable NLP text classification now outsourced via TCP to any services configured in 
+  - [StanfordNER implementation written in java](./src/microservices/uk.ac.dundee.hic.nerd/README.md)
+- New CohortExtractor yaml config option `ProjectPathResolverType` which determines the folder structure for extracted images
+- Added [script](./utils/rabbitmq-config-tester/rabbitmq-config-tester.py) to verify RabbitMQ config files
+
 
 ## [1.2.3] - 2020-01-09
 
@@ -78,7 +86,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Added better CLI argument descriptions for DicomReprocessor
-- Added error logging for RabbitMQ bad Ack responses 
+- Added error logging for RabbitMQ bad Ack responses
   - Previously: `BasicReturn for TEST.IdentifiableImageExchange`
   - Now : `BasicReturn for Exchange 'TEST.IdentifiableImageExchange' Routing Key 'reprocessed' ReplyCode '312' (NO_ROUTE)`
 - Added new swapper `TableLookupWithGuidFallbackSwapper` which performs lookup substitutions but allocates guids for lookup misses
@@ -95,7 +103,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Changed
 
-### C#
+### C\# dependencies
 
 - Bumped HIC.DicomTypeTranslation from 1.0.0.3 to 2.1.2
 - Bumped HIC.RDMP.Plugin from 3.1.1 to 4.0.1-rc2
@@ -104,10 +112,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Bumped System.IO.Abstractions from 4.2.17 to 7.0.7
 - Bumped MongoDB.Driver from 2.8.0 to 2.9.3
 
-### Java
+### Java dependencies
 
 - Bumped jackson-databind from 2.9.6 to 2.9.10.0
-
 
 ## [1.0.0] - 2019-11-18
 
@@ -124,14 +131,16 @@ First stable release after importing the repository from the private [SMIPlugin]
 
 ## Removed
 
-- Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`).  Previously skipping database portion was supported.
+- Anonymous `MappingTableName` must now be fully specified to pass validation (e.g. `mydb.mytbl`). Previously skipping database portion was supported.
 
-
-[Unreleased]: https://github.com/SMI/SmiServices/compare/v1.2.3...develop
-[1.2.3]:  https://github.com/SMI/SmiServices/compare/v1.2.2...v1.2.3
-[1.2.2]:  https://github.com/SMI/SmiServices/compare/v1.2.1...v1.2.2
-[1.2.1]:  https://github.com/SMI/SmiServices/compare/1.2.0...v1.2.1
-[1.2.0]:  https://github.com/SMI/SmiServices/compare/1.1.0-rc1...1.2.0
-[1.2.0-rc1]:  https://github.com/SMI/SmiServices/compare/1.1.0...1.2.0-rc1
+[unreleased]: https://github.com/SMI/SmiServices/compare/v1.2.3...develop
+[1.2.3]: https://github.com/SMI/SmiServices/compare/v1.2.2...v1.2.3
+[1.2.2]: https://github.com/SMI/SmiServices/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/SMI/SmiServices/compare/1.2.0...v1.2.1
+[1.2.0]: https://github.com/SMI/SmiServices/compare/1.1.0-rc1...1.2.0
+[1.2.0-rc1]: https://github.com/SMI/SmiServices/compare/1.1.0...1.2.0-rc1
 [1.1.0]: https://github.com/SMI/SmiServices/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/SMI/SmiServices/releases/tag/1.0.0
+
+[IsIdentifiable]: ./src/microservices/Microservices.IsIdentifiable/README.md
+[SocketRules]: ./src/microservices/Microservices.IsIdentifiable/README.md#socket-rules
