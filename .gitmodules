@@ -1,0 +1,6 @@
+[submodule "lib/java/CTP"]
+	path = lib/java/CTP
+	url = https://github.com/johnperry/CTP
+[submodule "lib/java/Util"]
+	path = lib/java/Util
+	url = https://github.com/johnperry/Util
