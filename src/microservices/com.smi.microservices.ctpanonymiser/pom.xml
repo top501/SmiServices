@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>2.13.0</version>
+			<scope>compile</scope>
 		</dependency>
     </dependencies>
 
@@ -54,7 +54,8 @@
 						</goals>
 						<configuration>
 							<sources>
-								<source>../../../data/CTP-x101/source/java/</source>
+                                <source>../../../lib/java/CTP/source/java/</source>
+                                <source>../../../lib/java/Util/source/java/</source>
 								<source>../../common/com.smi.microservices.common/src/main/java</source>
 							</sources>
 						</configuration>
@@ -108,4 +109,13 @@
             </plugin>
         </plugins>
     </build>
+    <dependencyManagement>
+    	<dependencies>
+    		<dependency>
+    			<groupId>org.apache.logging.log4j</groupId>
+    			<artifactId>log4j-core</artifactId>
+    			<version>2.13.0</version>
+    		</dependency>
+    	</dependencies>
+    </dependencyManagement>
 </project>
