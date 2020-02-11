@@ -53,7 +53,6 @@
                             <goal>add-source</goal>
                         </goals>
                         <configuration>
-                            <encoding>ISO-8859-1</encoding>
                             <sources>
                                 <source>../../../lib/java/CTP/source/java/</source>
                                 <source>../../../lib/java/Util/source/java/</source>
