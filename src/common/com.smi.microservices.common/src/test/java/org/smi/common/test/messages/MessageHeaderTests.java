@@ -162,7 +162,7 @@ public class MessageHeaderTests extends TestCase {
 		consumerOptions.QoSPrefetchCount = 1;
 		consumerOptions.AutoAck = true;
 
-		SimpleConsumer consumer = new SimpleConsumer();
+		SimpleConsumer consumer = new SimpleConsumer(adapter.getChannel(consumerOptions.QoSPrefetchCount));
 		adapter.StartConsumer(consumerOptions, consumer);
 
 		ProducerOptions producerOptions = new ProducerOptions();
@@ -194,7 +194,11 @@ public class MessageHeaderTests extends TestCase {
 
 	private class SimpleConsumer extends SmiConsumer {
 
-		public int Received;
+		public SimpleConsumer(Channel channel) {
+            super(channel);
+        }
+
+        public int Received;
 
 		@Override
 		public void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body,

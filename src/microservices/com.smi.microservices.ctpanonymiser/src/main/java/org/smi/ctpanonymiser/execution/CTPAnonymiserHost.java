@@ -10,6 +10,8 @@ import org.smi.common.rabbitMq.RabbitMqAdapter;
 import org.smi.ctpanonymiser.messaging.CTPAnonymiserConsumer;
 import org.smi.ctpanonymiser.util.DicomAnonymizerToolBuilder;
 
+import com.rabbitmq.client.Channel;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -18,81 +20,83 @@ import java.util.concurrent.TimeoutException;
 
 public class CTPAnonymiserHost implements IMicroserviceHost {
 
-	private static final Logger _logger = LoggerFactory.getLogger(CTPAnonymiserHost.class);
+    private static final Logger _logger = LoggerFactory.getLogger(CTPAnonymiserHost.class);
 
-	private final RabbitMqAdapter _rabbitMqAdapter;
-	private final CTPAnonymiserConsumer _consumer;
-	private IProducerModel _producer;
+    private final RabbitMqAdapter _rabbitMqAdapter;
+    private final CTPAnonymiserConsumer _consumer;
+    private IProducerModel _producer;
 
-	private final GlobalOptions _options;
+    private final GlobalOptions _options;
 
-	public CTPAnonymiserHost(GlobalOptions options, CommandLine cliOptions) throws IOException, TimeoutException {
+    public CTPAnonymiserHost(GlobalOptions options, CommandLine cliOptions) throws IOException, TimeoutException {
 
-		_options = options;
+        _options = options;
 
-		_logger.trace("Setting up CTPAnonymiserHost");
+        _logger.trace("Setting up CTPAnonymiserHost");
 
-		File anonScriptFile = new File(Paths.get(cliOptions.getOptionValue("a")).toString());
-		_logger.debug("anonScriptFile: " + anonScriptFile.getPath());
+        File anonScriptFile = new File(Paths.get(cliOptions.getOptionValue("a")).toString());
+        _logger.debug("anonScriptFile: " + anonScriptFile.getPath());
 
-		if (!anonScriptFile.exists() || anonScriptFile.isDirectory())
-			throw new IllegalArgumentException("Cannot find anonymisation script file: " + anonScriptFile.getPath());
+        if (!anonScriptFile.exists() || anonScriptFile.isDirectory())
+            throw new IllegalArgumentException("Cannot find anonymisation script file: " + anonScriptFile.getPath());
 
-		String fsRoot = options.FileSystemOptions.getFileSystemRoot();
-		if (!CheckValidDirectory(fsRoot)) {
-			throw new FileNotFoundException("Given filesystem root is not valid: " + fsRoot);
-		}
+        String fsRoot = options.FileSystemOptions.getFileSystemRoot();
+        if (!CheckValidDirectory(fsRoot)) {
+            throw new FileNotFoundException("Given filesystem root is not valid: " + fsRoot);
+        }
 
-		String exRoot = options.FileSystemOptions.getExtractRoot();
-		if (!CheckValidDirectory(exRoot)) {
-			throw new FileNotFoundException("Given extraction root is not valid: " + exRoot);
-		}
+        String exRoot = options.FileSystemOptions.getExtractRoot();
+        if (!CheckValidDirectory(exRoot)) {
+            throw new FileNotFoundException("Given extraction root is not valid: " + exRoot);
+        }
 
-		_rabbitMqAdapter = new RabbitMqAdapter(options.RabbitOptions, "CTPAnonymiserHost");
-		_logger.debug("Connected to RabbitMQ server version " + _rabbitMqAdapter.getRabbitMqServerVersion());
+        _rabbitMqAdapter = new RabbitMqAdapter(options.RabbitOptions, "CTPAnonymiserHost");
+        _logger.debug("Connected to RabbitMQ server version " + _rabbitMqAdapter.getRabbitMqServerVersion());
 
-		try {
+        try {
 
-			_producer = _rabbitMqAdapter.SetupProducer(options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions);
+            _producer = _rabbitMqAdapter.SetupProducer(options.CTPAnonymiserOptions.ExtractFileStatusProducerOptions);
 
-		} catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
 
-			e.printStackTrace();
-		}
+            e.printStackTrace();
+        }
 
-		// Build the SMI Anonymiser tool
-		SmiCtpProcessor anonTool = new DicomAnonymizerToolBuilder().tagAnonScriptFile(anonScriptFile).check(null).buildDat();
+        // Build the SMI Anonymiser tool
+        SmiCtpProcessor anonTool = new DicomAnonymizerToolBuilder().tagAnonScriptFile(anonScriptFile).check(null).buildDat();
 
-		final String routingKey = "";
+        final String routingKey = "";
 
-		_consumer = new CTPAnonymiserConsumer(
-				_producer,
-				anonTool,
-				routingKey,
-				fsRoot,
-				exRoot);
+        Channel chan = _rabbitMqAdapter.getChannel(_options.CTPAnonymiserOptions.ExtractFileConsumerOptions.QoSPrefetchCount);
+        _consumer = new CTPAnonymiserConsumer(
+                chan,
+                _producer,
+                anonTool,
+                routingKey,
+                fsRoot,
+                exRoot);
 
-		_logger.info("CTPAnonymiserHost created successfully");
+        _logger.info("CTPAnonymiserHost created successfully");
 
-		// Start the consumer
-		_rabbitMqAdapter.StartConsumer(_options.CTPAnonymiserOptions.ExtractFileConsumerOptions, _consumer);
-	}
+        // Start the consumer
+        _rabbitMqAdapter.StartConsumer(_options.CTPAnonymiserOptions.ExtractFileConsumerOptions, _consumer);
+    }
 
-	public IProducerModel getProducer() {
-		return _producer;
-	}
+    public IProducerModel getProducer() {
+        return _producer;
+    }
 
-	public void Shutdown() {
+    public void Shutdown() {
 
-		_logger.info("Host shutdown called");
+        _logger.info("Host shutdown called");
 
-		_rabbitMqAdapter.Shutdown();
-	}
+        _rabbitMqAdapter.Shutdown();
+    }
 
-	private boolean CheckValidDirectory(String path) {
+    private boolean CheckValidDirectory(String path) {
 
-		File f = new File(Paths.get(path).toString());
+        File f = new File(Paths.get(path).toString());
 
-		return (f.exists() && f.isDirectory() && f.canRead());
-	}
+        return (f.exists() && f.isDirectory() && f.canRead());
+    }
 }
