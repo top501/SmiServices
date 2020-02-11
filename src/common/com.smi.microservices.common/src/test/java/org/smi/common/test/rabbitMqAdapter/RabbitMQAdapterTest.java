@@ -4,7 +4,6 @@ package org.smi.common.test.rabbitMqAdapter;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
 import org.smi.common.messages.SimpleMessage;
 import org.smi.common.messaging.IProducerModel;
 import org.smi.common.messaging.SimpleConsumer;
@@ -21,8 +20,6 @@ import com.rabbitmq.client.ConnectionFactory;
 import junit.framework.TestCase;
 
 public class RabbitMQAdapterTest extends TestCase {
-
-    private final static Logger log = Logger.getLogger(RabbitMQAdapterTest.class);
 
     private GlobalOptions _options;
     private RabbitMqAdapter _rmqAdapter;

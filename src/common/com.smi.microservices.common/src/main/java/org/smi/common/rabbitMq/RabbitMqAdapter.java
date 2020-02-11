@@ -52,8 +52,6 @@ public class RabbitMqAdapter {
         return _rabbitMqServerVersion;
     }
 
-    private String _hostId;
-
     /**
      * Constructor for the RabbitMQ adapter helper class
      *
@@ -81,7 +79,6 @@ public class RabbitMqAdapter {
         int randomPid = new Random().nextInt() & Integer.MAX_VALUE;
 
         _headerFactory = new MessageHeaderFactory(microserviceName, randomPid);
-        _hostId = _headerFactory.getProcessName() + _headerFactory.getProcessId();
     }
 
     private void CheckValidServerSettings(ConnectionFactory _factory) throws IOException, TimeoutException {
