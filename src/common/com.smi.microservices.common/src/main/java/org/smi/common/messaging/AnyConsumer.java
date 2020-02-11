@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.smi.common.messages.MessageHeader;
 
 import com.rabbitmq.client.AMQP.BasicProperties;
+import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Envelope;
 
 /**
@@ -38,60 +39,61 @@ import com.rabbitmq.client.Envelope;
  */
 public class AnyConsumer<T> extends SmiConsumer {
 
-	final Class<T> _typeParameterClass;
+    final Class<T> _typeParameterClass;
 
-	private T _message;
-	private volatile boolean _messageValid;
+    private T _message;
+    private volatile boolean _messageValid;
 
-	public AnyConsumer(Class<T> typeParameterClass) {
-		this._typeParameterClass = typeParameterClass;
-		_message = null;
-		_messageValid = false;
-	}
+    public AnyConsumer(Class<T> typeParameterClass,Channel chan) {
+        super(chan);
+        this._typeParameterClass = typeParameterClass;
+        _message = null;
+        _messageValid = false;
+    }
 
-	@Override
-	public void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body,
-			MessageHeader header) throws IOException {
+    @Override
+    public void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body,
+            MessageHeader header) throws IOException {
 
-		try {
+        try {
 
-			_message = getMessageFromBytes(body, _typeParameterClass);
+            _message = getMessageFromBytes(body, _typeParameterClass);
 
-		} catch (IOException e) {
+        } catch (IOException e) {
 
-			NackMessage(envelope.getDeliveryTag());
-			throw e;
-		}
+            NackMessage(envelope.getDeliveryTag());
+            throw e;
+        }
 
-		AckMessage(envelope.getDeliveryTag());
-		_messageValid = true;
-	}
+        AckMessage(envelope.getDeliveryTag());
+        _messageValid = true;
+    }
 
-	/**
-	 * @return True if a valid message has been received
-	 */
-	public boolean isMessageValid() {
-		return _messageValid;
-	}
+    /**
+     * @return True if a valid message has been received
+     */
+    public boolean isMessageValid() {
+        return _messageValid;
+    }
 
-	/**
-	 * Gets the received message and resets the consumer
-	 * 
-	 * @return The received message
-	 */
-	public T getMessage() {
-		
-		T message = null;
-		
-		if (isMessageValid()) {
-			
-			message = _message;
-			
-			// Reset consumer
-			_message = null;
-			_messageValid = false;
-		}
-		
-		return message;
-	}
+    /**
+     * Gets the received message and resets the consumer
+     * 
+     * @return The received message
+     */
+    public T getMessage() {
+
+        T message = null;
+
+        if (isMessageValid()) {
+
+            message = _message;
+
+            // Reset consumer
+            _message = null;
+            _messageValid = false;
+        }
+
+        return message;
+    }
 }

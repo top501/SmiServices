@@ -3,8 +3,9 @@ package org.smi.ctpanonymiser.test.util;
 
 import java.io.File;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.smi.ctpanonymiser.execution.SmiCtpProcessor;
 import org.smi.ctpanonymiser.messages.ExtractFileMessage;
 import org.smi.ctpanonymiser.util.DicomAnonymizerToolBuilder;
@@ -13,7 +14,7 @@ import junit.framework.TestCase;
 
 public class DicomAnonymizerToolBuilderTest extends TestCase {
 
-	private final static Logger log = Logger.getLogger(DicomAnonymizerToolBuilderTest.class);
+	private final static Logger log = LogManager.getLogger(DicomAnonymizerToolBuilderTest.class);
 
 	private File _anonScript;
 	private File _identifiableDcm;
@@ -78,12 +79,7 @@ public class DicomAnonymizerToolBuilderTest extends TestCase {
 
 		File out = new File(extractFileMessage.getExtractionOutputPath(_fileSystemRoot));
 
-		Level level = Logger.getRootLogger().getLevel();
-		Logger.getRootLogger().setLevel(Level.INFO);
-
 		anonTool.anonymize(in, out);
-
-		Logger.getRootLogger().setLevel(level);
 
 		assertTrue("Anonymised file does not exist:" + out.getName(), out.exists());
 		log.info("Anonymised file produced: " + out.getName());

@@ -3,6 +3,7 @@ package org.smi.ctpanonymiser.messaging;
 import com.google.common.io.Files;
 import com.google.gson.JsonSyntaxException;
 import com.rabbitmq.client.AMQP.BasicProperties;
+import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Envelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +29,11 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 	private String _fileSystemRoot;
 	private String _extractFileSystemRoot;
 
-	private SmiCtpProcessor _anonTool;
+    private SmiCtpProcessor _anonTool;
 
 	private IProducerModel _statusMessageProducer;
 
-	private boolean _foundAFile = false;
+    private boolean _foundAFile = false;
 
 
 	public CTPAnonymiserConsumer(IProducerModel producer, SmiCtpProcessor anonTool, String fileSystemRoot,
@@ -44,97 +45,93 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 		_extractFileSystemRoot = extractFileSystemRoot;
 	}
 
-	@Override
-	public void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body, MessageHeader header)
-			throws IOException {
+        ExtractFileMessage extractFileMessage;
 
-		ExtractFileMessage extractFileMessage;
+        try {
 
-		try {
+            extractFileMessage = getMessageFromBytes(body, ExtractFileMessage.class);
+            _logger.debug("ExtractFileMessage received:\n" + extractFileMessage.toReadableText());
 
-			extractFileMessage = getMessageFromBytes(body, ExtractFileMessage.class);
-			_logger.debug("ExtractFileMessage received:\n" + extractFileMessage.toReadableText());
+        } catch (JsonSyntaxException e) {
 
-		} catch (JsonSyntaxException e) {
+            // Problem with the message, so Nack it
+            _logger.error("Problem with message, so it will be Nacked:" + e.getMessage());
 
-			// Problem with the message, so Nack it
-			_logger.error("Problem with message, so it will be Nacked:" + e.getMessage());
+            NackMessage(envelope.getDeliveryTag());
+            return;
+        }
 
-			NackMessage(envelope.getDeliveryTag());
-			return;
-		}
+        ExtractFileStatusMessage statusMessage = new ExtractFileStatusMessage(extractFileMessage);
 
-		ExtractFileStatusMessage statusMessage = new ExtractFileStatusMessage(extractFileMessage);
+        // Got the message, now apply the anonymisation
 
-		// Got the message, now apply the anonymisation
+        File sourceFile = new File(extractFileMessage.getAbsolutePathToIdentifiableImage(_fileSystemRoot));
 
-		File sourceFile = new File(extractFileMessage.getAbsolutePathToIdentifiableImage(_fileSystemRoot));
+        if (!sourceFile.exists()) {
 
-		if (!sourceFile.exists()) {
+            String msg = "Dicom file to anonymise does not exist: " + sourceFile.getAbsolutePath() + ". Cannot output to "
+                    + extractFileMessage.OutputPath;
 
-			String msg = "Dicom file to anonymise does not exist: " + sourceFile.getAbsolutePath() + ". Cannot output to "
-					+ extractFileMessage.OutputPath;
+            _logger.error(msg);
 
-			_logger.error(msg);
+            if (!_foundAFile) {
+                _logger.error("First message has failed, possible environment error. Check the filesystem root / permissions are correct. Re-queueing the message and shutting down...");
+                throw new FileNotFoundException("Could not find file for first message");
+            }
 
-			if (!_foundAFile) {
-				_logger.error("First message has failed, possible environment error. Check the filesystem root / permissions are correct. Re-queueing the message and shutting down...");
-				throw new FileNotFoundException("Could not find file for first message");
-			}
-
-			statusMessage.StatusMessage = msg;
-			statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
-
-			_statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
-
-			AckMessage(envelope.getDeliveryTag());
-			return;
-		}
-
-		_foundAFile = true;
-
-		File outFile = new File(extractFileMessage.getExtractionOutputPath(_extractFileSystemRoot));
-		File outDirectory = outFile.getParentFile();
-
-		if (!outDirectory.exists()) {
-
-			_logger.debug("Creating output directory " + outDirectory);
-
-			if (!outDirectory.mkdirs() && !outDirectory.exists()) {
-				throw new FileNotFoundException("Could not create the output directory " + outDirectory.getAbsolutePath());
-			}
-		}
-
-		// Create a temp. file for CTP to use
-
-		File tempFile = new File(Paths.get(outFile.getParent(), "tmp_" + outFile.getName()).toString());
-
-		_logger.debug("Copying source file to " + tempFile.getAbsolutePath());
-		Files.copy(sourceFile, tempFile);
-		tempFile.setWritable(false);
-
-		if (!tempFile.exists()) {
-
-			String msg = "Temp file to anonymise was not created: " + tempFile.getAbsolutePath();
-			_logger.error(msg);
+            statusMessage.StatusMessage = msg;
+            statusMessage.Status = 2;
 
 			statusMessage.StatusMessage = msg;
 			statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
 
 			_statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
 
-			AckMessage(envelope.getDeliveryTag());
-			return;
-		}
+        _foundAFile = true;
 
-		_logger.debug("Extracting to file: " + outFile.getAbsolutePath());
+        File outFile = new File(extractFileMessage.getExtractionOutputPath(_extractFileSystemRoot));
+        File outDirectory = outFile.getParentFile();
 
-		CtpAnonymisationStatus status = _anonTool.anonymize(tempFile, outFile);
-		_logger.debug("SmiCtpProcessor returned " + status);
+        if (!outDirectory.exists()) {
 
-		_logger.debug("Deleting temp file");
-		if (!tempFile.delete() || tempFile.exists())
-			_logger.warn("Could not delete temp file " + tempFile.getAbsolutePath());
+            _logger.debug("Creating output directory " + outDirectory);
+
+            if (!outDirectory.mkdirs() && !outDirectory.exists()) {
+                throw new FileNotFoundException("Could not create the output directory " + outDirectory.getAbsolutePath());
+            }
+        }
+
+        // Create a temp. file for CTP to use
+
+        File tempFile = new File(Paths.get(outFile.getParent(), "tmp_" + outFile.getName()).toString());
+
+        _logger.debug("Copying source file to " + tempFile.getAbsolutePath());
+        Files.copy(sourceFile, tempFile);
+        tempFile.setWritable(false);
+
+        if (!tempFile.exists()) {
+
+            String msg = "Temp file to anonymise was not created: " + tempFile.getAbsolutePath();
+            _logger.error(msg);
+
+            statusMessage.StatusMessage = msg;
+            statusMessage.Status = 2;
+
+			statusMessage.StatusMessage = msg;
+			statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
+
+			_statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
+
+        _logger.debug("Extracting to file: " + outFile.getAbsolutePath());
+
+        CtpAnonymisationStatus status = _anonTool.anonymize(tempFile, outFile);
+        _logger.debug("SmiCtpProcessor returned " + status);
+
+        _logger.debug("Deleting temp file");
+        if (!tempFile.delete() || tempFile.exists())
+            _logger.warn("Could not delete temp file " + tempFile.getAbsolutePath());
+
+        if (status == CtpAnonymisationStatus.Anonymised) {
 
 		String routingKey = _routingKey_failure;
 
@@ -144,7 +141,9 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
 			statusMessage.Status = ExtractFileStatus.Anonymised;
 			routingKey = _routingKey_success;
 
-		} else {
+            statusMessage.StatusMessage = _anonTool.getLastStatus();
+            statusMessage.Status = 2;
+        }
 
 			statusMessage.StatusMessage = _anonTool.getLastStatus();
 			statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
