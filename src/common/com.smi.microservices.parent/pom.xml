@@ -57,8 +57,15 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.0</version>
                     <configuration>
+                        <forceJavacCompilerUse>true</forceJavacCompilerUse>
                         <source>1.8</source>
                         <target>1.8</target>
+                        <excludes>
+                            <exclude>**/FtpsExportService.java</exclude>
+                            <exclude>**/EmailSender.java</exclude>
+                            <exclude>**/EmailService.java</exclude>
+                            <exclude>**/FtpExportService.java</exclude>
+                        </excludes>
                     </configuration>
                 </plugin>
 
@@ -232,13 +239,56 @@
         <dependency>
             <groupId>dcm4che</groupId>
             <artifactId>dcm4che14</artifactId>
-            <version>1.4.28</version>
+            <version>1.4.33</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../../../lib/java/dcm4che.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>dcm4che</groupId>
+            <artifactId>dcm4che-imageio-rle</artifactId>
+            <version>2.0.27</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j</artifactId>
             <type>pom</type>
             <version>2.13.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+            <version>2.13.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/jdbm/jdbm -->
+        <dependency>
+            <groupId>jdbm</groupId>
+            <artifactId>jdbm</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-vfs2 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-vfs2</artifactId>
+            <version>2.6.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.20</version>
+        </dependency>
+        <dependency>
+            <groupId>com.pixelmed</groupId>
+            <artifactId>pixelmed</artifactId>
+            <version>20150512</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../../../lib/java/CTP/libraries/pixelmed_codec.jar</systemPath>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.sun.media/jai_imageio -->
+        <dependency>
+            <groupId>com.sun.media</groupId>
+            <artifactId>jai_imageio</artifactId>
+            <version>1.1</version>
         </dependency>
     </dependencies>
     <repositories>
