@@ -97,6 +97,8 @@ jobs:
       - $HOME/.m2
     env:
     - PARENT_POM=src/common/com.smi.microservices.parent/pom.xml
+    before_install:
+    - iconv -f ISO-8859-1 -t utf-8 lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java > .ChunkedInputStream.java && mv .ChunkedInputStream.java lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java
     install:
     - ( cd ./lib/java && ./installDat.sh )
     script:
