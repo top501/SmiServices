@@ -401,6 +401,7 @@ namespace Microservices.DicomRelationalMapper.Tests
 
             _globals.DicomRelationalMapperOptions.Guid = new Guid("6c7cfbce-1af6-4101-ade7-6537eea72e03");
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = 5000;
+            _globals.IdentifierMapperOptions.QoSPrefetchCount = 50;
             _globals.DicomTagReaderOptions.NackIfAnyFileErrors = false;
 
             _helper.TruncateTablesIfExists();
@@ -540,6 +541,9 @@ namespace Microservices.DicomRelationalMapper.Tests
 
                     //make sure that the substitution identifier (that replaces old the PatientId) is the correct substitution (FISHFISH)/
                     Assert.AreEqual("FISHFISH", _helper.StudyTable.GetDataTable().Rows.OfType<DataRow>().First()["PatientId"]);
+
+                    //The file size in the final table should be more than 0
+                    Assert.Greater((long)_helper.ImageTable.GetDataTable().Rows.OfType<DataRow>().First()["DicomFileSize"],0);
 
                     dicomTagReaderHost.Stop("TestIsFinished");
 
