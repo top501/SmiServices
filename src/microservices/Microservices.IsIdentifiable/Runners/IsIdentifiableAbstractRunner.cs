@@ -40,9 +40,35 @@ namespace Microservices.IsIdentifiable.Runners
 
         /// <summary>
         /// Matches digits followed by a separator (: - \ etc) followed by more digits with optional AM / PM / GMT at the end
+        /// However this looks more like a time than a date and I would argue that times are not PII?
+        /// It's also not restrictive enough so matches too many non-PII numerics.
         /// </summary>
         readonly Regex _date = new Regex(
             @"\b\d+([:\-/\\]\d+)+\s?((AM)|(PM)|(GMT))?\b", RegexOptions.IgnoreCase);
+
+        // The following regex were adapted from:
+        // https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch04s04.html
+        // Separators are space slash dash
+
+        /// <summary>
+        /// Matches year last, i.e d/m/y or m/d/y
+        /// </summary>
+        readonly Regex _dateYearLast = new Regex(
+		    @"\b(?:(1[0-2]|0?[1-9])[ ]?[/-][ ]?(3[01]|[12][0-9]|0?[1-9])|(3[01]|[12][0-9]|0?[1-9])[ ]?[/-][ ]?(1[0-2]|0?[1-9]))[ ]?[/-][ ]?(?:[0-9]{2})?[0-9]{2}(\b|T)" // year last
+        );
+        /// <summary>
+        /// Matches year first, i.e y/m/d or y/d/m
+        /// </summary>
+        readonly Regex _dateYearFirst = new Regex(
+	    	@"\b(?:[0-9]{2})?[0-9]{2}[ ]?[/-][ ]?(?:(1[0-2]|0?[1-9])[ ]?[/-][ ]?(3[01]|[12][0-9]|0?[1-9])|(3[01]|[12][0-9]|0?[1-9])[ ]?[/-][ ]?(1[0-2]|0?[1-9]))(\b|T)" // year first
+        );
+        /// <summary>
+        /// Matches year missing, i.e d/m or m/d
+        /// </summary>
+        readonly Regex _dateYearMissing = new Regex(
+    		@"\b(?:(1[0-2]|0?[1-9])[ ]?[/-][ ]?(3[01]|[12][0-9]|0?[1-9])|(3[01]|[12][0-9]|0?[1-9])[ ]?[/-][ ]?(1[0-2]|0?[1-9]))(\b|T)" // year missing
+        );
+
 
         /// <summary>
         /// List of columns/tags which should not be processed.  This is automatically handled by the <see cref="Validate"/> method.
@@ -50,10 +76,17 @@ namespace Microservices.IsIdentifiable.Runners
         /// </summary>
         private readonly HashSet<string> _skipColumns = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
 
+        private HashSet<string> _whiteList;
+
         /// <summary>
         /// Custom rules you want to apply e.g. always ignore column X if value is Y
         /// </summary>
         public List<ICustomRule> CustomRules { get; set; } = new List<ICustomRule>();
+
+        /// <summary>
+        /// Custom whitelist rules you want to apply e.g. always ignore a failure if column is X AND value is Y
+        /// </summary>
+        public List<ICustomRule> CustomWhiteListRules { get; set; } = new List<ICustomRule>();
 
         protected IsIdentifiableAbstractRunner(IsIdentifiableAbstractOptions opts)
         {
@@ -85,7 +118,42 @@ namespace Microservices.IsIdentifiable.Runners
             if (fi.Exists)
                 LoadRules(File.ReadAllText(fi.FullName));
             else
-                _logger.Info("No Rules Yaml file found (thats ok)");
+                _logger.Info("No default Rules Yaml file found (thats ok)");
+
+            if (!string.IsNullOrWhiteSpace(opts.RulesFile))
+            {
+                fi = new FileInfo(_opts.RulesFile);
+                if (fi.Exists)
+                    LoadRules(File.ReadAllText(fi.FullName));
+                else
+                    throw new Exception("Error reading "+_opts.RulesFile);
+            }
+
+            IWhitelistSource source = null;
+
+            try
+            {
+                source = GetWhitelistSource();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error getting Whitelist Source", e);
+            }
+            
+            if (source != null)
+            {
+                _logger.Info("Fetching Whitelist...");
+                try
+                {
+                    _whiteList = new HashSet<string>(source.GetWhitelist(),StringComparer.CurrentCultureIgnoreCase);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"Error fetching values for IWhitelistSource {source.GetType().Name}", e);
+                }
+
+                _logger.Info($"Whitelist built with {_whiteList.Count} exact strings");
+            }
         }
 
         /// <summary>
@@ -95,7 +163,8 @@ namespace Microservices.IsIdentifiable.Runners
         /// <param name="yaml"></param>
         public void LoadRules(string yaml)
         {
-            _logger.Info("Loading Rules Yaml:" + Environment.NewLine + yaml);
+            _logger.Info("Loading Rules Yaml");
+            _logger.Debug("Loading Rules Yaml:" +Environment.NewLine+yaml);
             var deserializer = new Deserializer();
             var ruleSet = deserializer.Deserialize<RuleSet>(yaml);
 
@@ -104,6 +173,9 @@ namespace Microservices.IsIdentifiable.Runners
 
             if(ruleSet.SocketRules != null)
                 CustomRules.AddRange(ruleSet.SocketRules);
+
+            if(ruleSet.WhiteListRules != null)
+                CustomWhiteListRules.AddRange(ruleSet.WhiteListRules);
         }
 
         // ReSharper disable once UnusedMemberInSuper.Global
@@ -125,7 +197,11 @@ namespace Microservices.IsIdentifiable.Runners
 
             // Carets (^) are synonymous with space in some dicom tags
             fieldValue = fieldValue.Replace('^', ' ');
-            
+
+            //if there is a whitelist and it says to ignore the (full string) value
+            if (_whiteList != null && _whiteList.Contains(fieldValue.Trim()))
+                yield break;
+                    
             //for each custom rule
             foreach (ICustomRule rule in CustomRules)
             {
@@ -140,8 +216,23 @@ namespace Microservices.IsIdentifiable.Runners
                     //if the rule is to report it then report as a failure but also run other classifiers
                     case RuleAction.Report:
                         foreach (var p in parts)
-                            yield return p;
-
+                        {
+                            bool whitelisted = false;
+                            foreach (WhiteListRule whiterule in CustomWhiteListRules)
+                            {
+                                switch (whiterule.ApplyWhiteListRule(fieldName, fieldValue, p))
+                                {
+                                    case RuleAction.Ignore: whitelisted = true; break;
+                                    case RuleAction.None:
+                                    case RuleAction.Report: break;
+                                    default: throw new ArgumentOutOfRangeException();
+                                }
+                                if (whitelisted)
+                                    break;
+                            }
+                            if (!whitelisted)
+                                yield return p;
+                        }
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -158,7 +249,14 @@ namespace Microservices.IsIdentifiable.Runners
 
             if (!_opts.IgnoreDatesInText)
             {
-                foreach (Match m in _date.Matches(fieldValue))
+                foreach (Match m in _dateYearFirst.Matches(fieldValue))
+                    yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
+
+                foreach (Match m in _dateYearLast.Matches(fieldValue))
+                    yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
+
+                // XXX this may cause a duplicate failure if one above yields
+                foreach (Match m in _dateYearMissing.Matches(fieldValue))
                     yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
 
                 foreach (Match m in _symbolThenMonth.Matches(fieldValue))
@@ -214,7 +312,7 @@ namespace Microservices.IsIdentifiable.Runners
                 DiscoveredTable tbl = GetServer(_opts.WhitelistConnectionString, _opts.WhitelistDatabaseType, _opts.WhitelistTableName);
                 DiscoveredColumn col = tbl.DiscoverColumn(_opts.WhitelistColumn);
                 source = new DiscoveredColumnWhitelist(col);
-                _logger.Info($"Loaded a whitelist from {_opts.WhitelistConnectionString} {_opts.WhitelistTableName}");
+                _logger.Info($"Loaded a whitelist from {tbl.GetFullyQualifiedName()}");
             }
 
             return source;
