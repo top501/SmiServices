@@ -47,7 +47,6 @@ namespace Microservices.CohortPackager.Tests
         private void SetUpDefaults()
         {
             DefaultSubmittedDateTime = DateTime.Now;
-            Options.CohortPackagerOptions.JobWatcherTimeoutInSeconds = 9999999;
 
             TestExtractRequestInfoMessage = new ExtractionRequestInfoMessage
             {
