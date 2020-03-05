@@ -31,7 +31,6 @@ jobs:
         - rabbitmq-server
         - postgresql-10
         - postgresql-client-10
-        - rabbitmq-server
         - libgdiplus
         - tesseract-ocr
         - libtesseract-dev
@@ -70,6 +69,7 @@ jobs:
     - dotnet test ./tests/applications/Applications.DicomDirectoryProcessor.Tests/Applications.DicomDirectoryProcessor.Tests.csproj
 
     - ( cd data/tessdata && ./download.sh && cd - )
+    - 'if [ -f lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java ] ; then iconv -f iso-8859-1 -t utf-8 lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java > tmpiconv && mv tmpiconv lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java; fi'
     - dotnet test ./tests/microservices/Microservices.IsIdentifiable.Tests/Microservices.IsIdentifiable.Tests.csproj
     - mvn -f src/common/com.smi.microservices.parent/pom.xml clean test
     - if [ -d src/microservices/uk.ac.dundee.hic.nerd/ ]; then mvn -f src/microservices/uk.ac.dundee.hic.nerd/ clean test; fi
