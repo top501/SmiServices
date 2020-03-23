@@ -23,28 +23,31 @@ import java.nio.file.Paths;
 
 public class CTPAnonymiserConsumer extends SmiConsumer {
 
-	private final static Logger _logger = LoggerFactory.getLogger(CTPAnonymiserConsumer.class);
-	private final static String _routingKey_failure = "failure";
-	private final static String _routingKey_success = "success";
-	private String _fileSystemRoot;
-	private String _extractFileSystemRoot;
+    private final static Logger _logger = LoggerFactory.getLogger(CTPAnonymiserConsumer.class);
+    private final static String _routingKey_failure = "failure";
+    private final static String _routingKey_success = "success";
+    private String _fileSystemRoot;
+    private String _extractFileSystemRoot;
 
     private SmiCtpProcessor _anonTool;
 
-	private IProducerModel _statusMessageProducer;
+    private IProducerModel _statusMessageProducer;
 
     private boolean _foundAFile = false;
 
 
-	public CTPAnonymiserConsumer(IProducerModel producer, SmiCtpProcessor anonTool, String fileSystemRoot,
-								 String extractFileSystemRoot) {
+    public CTPAnonymiserConsumer(IProducerModel producer, SmiCtpProcessor anonTool, String fileSystemRoot,
+            String extractFileSystemRoot) {
 
-		_statusMessageProducer = producer;
-		_anonTool = anonTool;
-		_fileSystemRoot = fileSystemRoot;
-		_extractFileSystemRoot = extractFileSystemRoot;
-	}
+        _statusMessageProducer = producer;
+        _anonTool = anonTool;
+        _fileSystemRoot = fileSystemRoot;
+        _extractFileSystemRoot = extractFileSystemRoot;
+    }
 
+    @Override           ExtractFileMessage extractFileMessage;
+    public void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body, MessageHeader header)    
+            throws IOException {
         ExtractFileMessage extractFileMessage;
 
         try {
@@ -82,77 +85,77 @@ public class CTPAnonymiserConsumer extends SmiConsumer {
             statusMessage.StatusMessage = msg;
             statusMessage.Status = 2;
 
-			statusMessage.StatusMessage = msg;
-			statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
+            statusMessage.StatusMessage = msg;
+            statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
 
-			_statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
+            _statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
 
-        _foundAFile = true;
+            _foundAFile = true;
 
-        File outFile = new File(extractFileMessage.getExtractionOutputPath(_extractFileSystemRoot));
-        File outDirectory = outFile.getParentFile();
+            File outFile = new File(extractFileMessage.getExtractionOutputPath(_extractFileSystemRoot));
+            File outDirectory = outFile.getParentFile();
 
-        if (!outDirectory.exists()) {
+            if (!outDirectory.exists()) {
 
-            _logger.debug("Creating output directory " + outDirectory);
+                _logger.debug("Creating output directory " + outDirectory);
 
-            if (!outDirectory.mkdirs() && !outDirectory.exists()) {
-                throw new FileNotFoundException("Could not create the output directory " + outDirectory.getAbsolutePath());
+                if (!outDirectory.mkdirs() && !outDirectory.exists()) {
+                    throw new FileNotFoundException("Could not create the output directory " + outDirectory.getAbsolutePath());
+                }
+            }
+
+            // Create a temp. file for CTP to use
+
+            File tempFile = new File(Paths.get(outFile.getParent(), "tmp_" + outFile.getName()).toString());
+
+            _logger.debug("Copying source file to " + tempFile.getAbsolutePath());
+            Files.copy(sourceFile, tempFile);
+            tempFile.setWritable(false);
+
+            if (!tempFile.exists()) {
+
+                String msg = "Temp file to anonymise was not created: " + tempFile.getAbsolutePath();
+                _logger.error(msg);
+
+                statusMessage.StatusMessage = msg;
+                statusMessage.Status = 2;
+
+                statusMessage.StatusMessage = msg;
+                statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
+
+                _statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
+
+                _logger.debug("Extracting to file: " + outFile.getAbsolutePath());
+
+                CtpAnonymisationStatus status = _anonTool.anonymize(tempFile, outFile);
+                _logger.debug("SmiCtpProcessor returned " + status);
+
+                _logger.debug("Deleting temp file");
+                if (!tempFile.delete() || tempFile.exists())
+                    _logger.warn("Could not delete temp file " + tempFile.getAbsolutePath());
+
+                if (status == CtpAnonymisationStatus.Anonymised) {
+
+                    String routingKey = _routingKey_failure;
+
+                    if (status == CtpAnonymisationStatus.Anonymised) {
+
+                        statusMessage.AnonymisedFileName = extractFileMessage.OutputPath;
+                        statusMessage.Status = ExtractFileStatus.Anonymised;
+                        routingKey = _routingKey_success;
+
+                        statusMessage.StatusMessage = _anonTool.getLastStatus();
+                        statusMessage.Status = 2;
+                    }
+
+                    statusMessage.StatusMessage = _anonTool.getLastStatus();
+                    statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
+                    routingKey = _routingKey_failure;
+                }
+
+                _statusMessageProducer.SendMessage(statusMessage, routingKey, header);
+
+                // Everything worked so acknowledge message
+                AckMessage(envelope.getDeliveryTag());
             }
         }
-
-        // Create a temp. file for CTP to use
-
-        File tempFile = new File(Paths.get(outFile.getParent(), "tmp_" + outFile.getName()).toString());
-
-        _logger.debug("Copying source file to " + tempFile.getAbsolutePath());
-        Files.copy(sourceFile, tempFile);
-        tempFile.setWritable(false);
-
-        if (!tempFile.exists()) {
-
-            String msg = "Temp file to anonymise was not created: " + tempFile.getAbsolutePath();
-            _logger.error(msg);
-
-            statusMessage.StatusMessage = msg;
-            statusMessage.Status = 2;
-
-			statusMessage.StatusMessage = msg;
-			statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
-
-			_statusMessageProducer.SendMessage(statusMessage, _routingKey_failure, header);
-
-        _logger.debug("Extracting to file: " + outFile.getAbsolutePath());
-
-        CtpAnonymisationStatus status = _anonTool.anonymize(tempFile, outFile);
-        _logger.debug("SmiCtpProcessor returned " + status);
-
-        _logger.debug("Deleting temp file");
-        if (!tempFile.delete() || tempFile.exists())
-            _logger.warn("Could not delete temp file " + tempFile.getAbsolutePath());
-
-        if (status == CtpAnonymisationStatus.Anonymised) {
-
-		String routingKey = _routingKey_failure;
-
-		if (status == CtpAnonymisationStatus.Anonymised) {
-
-			statusMessage.AnonymisedFileName = extractFileMessage.OutputPath;
-			statusMessage.Status = ExtractFileStatus.Anonymised;
-			routingKey = _routingKey_success;
-
-            statusMessage.StatusMessage = _anonTool.getLastStatus();
-            statusMessage.Status = 2;
-        }
-
-			statusMessage.StatusMessage = _anonTool.getLastStatus();
-			statusMessage.Status = ExtractFileStatus.ErrorWontRetry;
-			routingKey = _routingKey_failure;
-		}
-
-		_statusMessageProducer.SendMessage(statusMessage, routingKey, header);
-
-		// Everything worked so acknowledge message
-		AckMessage(envelope.getDeliveryTag());
-	}
-}
