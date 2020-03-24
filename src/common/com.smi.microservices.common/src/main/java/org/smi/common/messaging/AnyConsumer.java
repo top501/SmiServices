@@ -44,8 +44,7 @@ public class AnyConsumer<T> extends SmiConsumer {
     private T _message;
     private volatile boolean _messageValid;
 
-    public AnyConsumer(Class<T> typeParameterClass,Channel chan) {
-        super(chan);
+    public AnyConsumer(Class<T> typeParameterClass) {
         this._typeParameterClass = typeParameterClass;
         _message = null;
         _messageValid = false;
