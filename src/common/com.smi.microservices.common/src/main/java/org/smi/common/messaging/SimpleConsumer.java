@@ -12,35 +12,31 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.rabbitmq.client.AMQP.BasicProperties;
-import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Envelope;
 
 public class SimpleConsumer extends SmiConsumer {
+	
+	private String _message = null;
+	
+	@Override
+	public void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body, MessageHeader header)
+			throws IOException {
 
-    public SimpleConsumer(Channel channel) {
-        super(channel);
-    }
-
-    private String _message = null;
-
-    @Override
-    public void handleDeliveryImpl(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body, MessageHeader header)
-            throws IOException {
-
-        final Gson gson = new GsonBuilder()
-                .registerTypeAdapter(SimpleMessage.class, new JsonDeserializerWithOptions<SimpleMessage>())
-                .create();
+		final Gson gson = new GsonBuilder()
+			    .registerTypeAdapter(SimpleMessage.class, new JsonDeserializerWithOptions<SimpleMessage>())
+			    .create();
 
 
-        JsonObject jObj = new JsonParser().parse(new String(body, "UTF-8")).getAsJsonObject();
-        SimpleMessage message = gson.fromJson(jObj, SimpleMessage.class);
+		JsonObject jObj = new JsonParser().parse(new String(body, "UTF-8")).getAsJsonObject();
+		SimpleMessage message = gson.fromJson(jObj, SimpleMessage.class);
+		
+		_message = message.Message;		
+		_channel.basicAck(envelope.getDeliveryTag(), false);
+	}
 
-        _message = message.Message;		
-        this.getChannel().basicAck(envelope.getDeliveryTag(), false);
-    }
-
-    public String getMessage() {
-        return _message;
-    }
+	public String getMessage() {
+		
+		return _message;
+	}
 
 }
