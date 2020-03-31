@@ -27,10 +27,9 @@ public class ExtractFileMessageTest extends TestCase {
 
         super.setUp();
 
-        SmiLogging.Setup(0);
+        SmiLogging.Setup(true);
 
         _exMessage = new ExtractFileMessage();
-
         _exMessage.ExtractionJobIdentifier = UUID.randomUUID();
         _exMessage.JobSubmittedAt = "";
         _exMessage.ExtractionDirectory = "dummyProjectDir/dummyExtractionDir";

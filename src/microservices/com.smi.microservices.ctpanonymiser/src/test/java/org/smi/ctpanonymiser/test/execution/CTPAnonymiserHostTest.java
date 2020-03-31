@@ -55,7 +55,7 @@ public class CTPAnonymiserHostTest extends TestCase {
 
         super.setUp();
 
-        SmiLogging.Setup(0);
+        SmiLogging.Setup(true);
         _logger = LoggerFactory.getLogger(Program.class);
 
         _options = GlobalOptions.Load(true);
@@ -84,7 +84,6 @@ public class CTPAnonymiserHostTest extends TestCase {
         _extractFileStatusConsumerOptions.AutoAck = false;
         _extractFileStatusConsumerOptions.QoSPrefetchCount = 1;
 
-
         _extractFileProducerOptions = new ProducerOptions();
         _extractFileProducerOptions.ExchangeName = _inputExchName;
 
@@ -104,12 +103,12 @@ public class CTPAnonymiserHostTest extends TestCase {
 
         // Setup the output exch. / queue pair
 
-		_channel.exchangeDeclare(_producerExchangeName, "direct", true);
-		_channel.queueDeclare(_outputQueueName, true, false, false, null);
-		_channel.queueBind(_outputQueueName, _producerExchangeName, "");
-		_channel.queueBind(_outputQueueName, _producerExchangeName, "success");
-		_channel.queueBind(_outputQueueName, _producerExchangeName, "failure");
-		System.out.println(String.format("Bound %s -> %s", _producerExchangeName, _outputQueueName));
+        _channel.exchangeDeclare(_producerExchangeName, "direct", true);
+        _channel.queueDeclare(_outputQueueName, true, false, false, null);
+        _channel.queueBind(_outputQueueName, _producerExchangeName, "");
+        _channel.queueBind(_outputQueueName, _producerExchangeName, "success");
+        _channel.queueBind(_outputQueueName, _producerExchangeName, "failure");
+        System.out.println(String.format("Bound %s -> %s", _producerExchangeName, _outputQueueName));
 
         _channel.queuePurge(_consumerQueueName);
         _channel.queuePurge(_outputQueueName);
@@ -186,13 +185,13 @@ public class CTPAnonymiserHostTest extends TestCase {
             _logger.info("Message received");
             _logger.info("\n" + recvd.toString());
 
-			assertEquals("FilePaths do not match", exMessage.OutputPath, recvd.AnonymisedFileName);
-			assertEquals("Project numbers do not match", exMessage.ProjectNumber, recvd.ProjectNumber);
-			assertEquals(ExtractFileStatus.Anonymised, recvd.Status);
-		} else {
-			fail("Did not receive message");
-		}
-	}
+            assertEquals("FilePaths do not match", exMessage.OutputPath, recvd.AnonymisedFileName);
+            assertEquals("Project numbers do not match", exMessage.ProjectNumber, recvd.ProjectNumber);
+            assertEquals(ExtractFileStatus.Anonymised, recvd.Status);
+        } else {
+            fail("Did not receive message");
+        }
+    }
 
     public void testBasicAnonymise_Failure() throws InterruptedException {
         // TODO: Nasty hack, run the success test case first to avoid the "failed first message" path
@@ -233,10 +232,13 @@ public class CTPAnonymiserHostTest extends TestCase {
 
             ExtractFileStatusMessage recvd = _anonFileStatusMessageConsumer.getMessage();
 
-			assertEquals("FilePaths do not match", null, recvd.AnonymisedFileName);
-			assertEquals(ExtractFileStatus.ErrorWontRetry, recvd.Status);
-		} else {
-			fail("Did not receive message");
-		}
-	}
+            _logger.info("Message received");
+            _logger.info("\n" + recvd.toString());
+
+            assertEquals("FilePaths do not match", null, recvd.AnonymisedFileName);
+            assertEquals(ExtractFileStatus.ErrorWontRetry, recvd.Status);
+        } else {
+            fail("Did not receive message");
+        }
+    }
 }
