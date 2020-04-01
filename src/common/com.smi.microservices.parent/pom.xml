@@ -58,8 +58,7 @@
                     <version>3.8.0</version>
                     <configuration>
                         <forceJavacCompilerUse>true</forceJavacCompilerUse>
-                        <source>1.8</source>
-                        <target>1.8</target>
+                        <release>11</release>
                         <excludes>
                             <exclude>**/FtpsExportService.java</exclude>
                             <exclude>**/EmailSender.java</exclude>
