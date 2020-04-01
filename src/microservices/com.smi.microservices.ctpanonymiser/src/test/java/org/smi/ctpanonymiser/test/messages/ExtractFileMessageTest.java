@@ -19,7 +19,6 @@ public class ExtractFileMessageTest extends TestCase {
 
     private final static Logger log = LogManager.getLogger(ExtractFileMessageTest.class);
     private ExtractFileMessage _exMessage;
-    private final String _routingKey = "dummyRoutingKey";
     private final String _fileSystemRoot = "dummyfilesystemroot";
     private final String _extractFileSystemRoot = "dummyextractfilesystemroot";
 
@@ -46,7 +45,7 @@ public class ExtractFileMessageTest extends TestCase {
 
     public void testSerializeDeserialize() {
         ExtractFileMessage recvdMessage;
-        CTPAnonymiserConsumer consumer = new CTPAnonymiserConsumer(null, null, _fileSystemRoot, _extractFileSystemRoot);
+        CTPAnonymiserConsumer consumer = new CTPAnonymiserConsumer(null, null, null, _fileSystemRoot, _extractFileSystemRoot);
 
         // Get byte array version of message
         Gson _gson = new Gson();
