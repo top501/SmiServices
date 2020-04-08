@@ -37,6 +37,18 @@
             <artifactId>log4j-core</artifactId>
             <scope>compile</scope>
         </dependency>
+        
+        <dependency>
+        	    <groupId>com.github.jas88</groupId>
+        	    <artifactId>CTP</artifactId>
+        	    <version>x101</version>
+        	</dependency>
+          <dependency>
+              <groupId>org.apache.logging.log4j</groupId>
+              <artifactId>log4j-core</artifactId>
+              <version>2.13.0</version>
+          </dependency>
+        
     </dependencies>
 
     <build>
@@ -54,7 +66,6 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>../../../lib/java/CTP/source/java/</source>
                                 <source>../../../lib/java/Util/source/java/</source>
                                 <source>../../common/com.smi.microservices.common/src/main/java</source>
                             </sources>
@@ -110,13 +121,10 @@
             </plugin>
         </plugins>
     </build>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-core</artifactId>
-                <version>2.13.0</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+  	<repositories>
+  		<repository>
+  		    <id>jitpack.io</id>
+  		    <url>https://jitpack.io</url>
+  		</repository>
+  	</repositories>
 </project>
