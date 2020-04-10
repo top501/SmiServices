@@ -57,7 +57,8 @@ namespace Smi.Common.Execution
             if (globals == null || globals.FileSystemOptions == null || globals.RabbitOptions == null || globals.MicroserviceOptions == null)
                 throw new ArgumentException("All or part of the global options are null");
 
-            HostProcessName = Assembly.GetEntryAssembly()?.GetName().Name ?? throw new ApplicationException("Couldn't get the Assembly name!");
+            Assembly entryAssembly = Assembly.GetEntryAssembly();
+            HostProcessName = entryAssembly?.GetName().Name ?? throw new ApplicationException("Couldn't get the Assembly name!");
 
             string logConfigPath = null;
 
@@ -86,15 +87,22 @@ namespace Smi.Common.Execution
             }
 
             Logger = LogManager.GetLogger(GetType().Name);
-            Logger.Info("Host logger created with " + (loadSmiLogConfig ? "SMI" : "existing") + " logging config");
 
             if (!string.IsNullOrWhiteSpace(logConfigPath))
                 Logger.Debug($"Logging config loaded from {logConfigPath}");
 
             if (!globals.MicroserviceOptions.TraceLogging)
                 LogManager.GlobalThreshold = LogLevel.Debug;
-
             Logger.Trace("Trace logging enabled!");
+
+            Logger.Info("Host logger created with " + (loadSmiLogConfig ? "SMI" : "existing") + " logging config");
+
+            // Log some of the assembly information to help with debugging
+            Type thisAssembly = entryAssembly.GetType("ThisAssembly");
+            if (thisAssembly != null)
+                LogAssemblyInfo(thisAssembly);
+            else
+                Logger.Warn("Could not find type ThisAssembly in the entry assembly");
 
             //FIXME: Check this is still valid
             if (!DicomDatasetHelpers.CorrectFoDicomVersion())
@@ -225,6 +233,15 @@ namespace Smi.Common.Execution
                 }
 
             Stop("Fatal error in MicroserviceHost (" + msg + ")");
+        }
+
+        private void LogAssemblyInfo(Type thisAssembly)
+        {
+            // NOTE(rkm 2020-04-10) See https://github.com/dotnet/Nerdbank.GitVersioning/blob/dcb9ac9dd7f7a873f86bc167f9a1a44c2bfbf826/doc/dotnet.md
+            const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
+            Logger.Info($"AssemblyVersion: {thisAssembly.GetField("AssemblyVersion", flags)?.GetValue(null)}");
+            Logger.Debug($"AssemblyInformationalVersion: {thisAssembly.GetField("AssemblyInformationalVersion", flags)?.GetValue(null)}");
+            Logger.Debug($"AssemblyConfiguration: {thisAssembly.GetField("AssemblyConfiguration", flags)?.GetValue(null)}");
         }
     }
 }
