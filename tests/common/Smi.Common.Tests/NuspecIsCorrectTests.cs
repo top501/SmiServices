@@ -1,4 +1,4 @@
-﻿
+
 using NUnit.Framework;
 using System.IO;
 using System.Linq;
@@ -19,6 +19,8 @@ namespace Smi.Common.Tests
         // Applications
         [TestCase(
             "../../../../../../../src/applications/Applications.DicomDirectoryProcessor/Applications.DicomDirectoryProcessor.csproj",null, null)]
+        // TODO(rkm 2020-04-10) Add IsIdentifiable
+
         // Common
         [TestCase("../../../../../../../src/common/Smi.Common/Smi.Common.csproj", null,null)]
         [TestCase("../../../../../../../src/common/Smi.Common.MongoDb/Smi.Common.MongoDb.csproj", null,null)]
@@ -141,15 +143,15 @@ namespace Smi.Common.Tests
         public void VersionIsCorrectTest()
         {
             var readmeMd = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../../../../../README.md"));
-            var m = Regex.Match(readmeMd,"Version: `(.*)`");
-            Assert.IsTrue(m.Success,"README.md in root did not list the version in the expected format");
-            
+            var m = Regex.Match(readmeMd, "Version: `(.*)`");
+            Assert.IsTrue(m.Success, "README.md in root did not list the version in the expected format");
+
             var readmeMdVersion = m.Groups[1].Value;
 
-            var sharedAssemblyInfo = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../../../../../src/SharedAssemblyInfo.cs"));
-            var version = Regex.Match(sharedAssemblyInfo,@"AssemblyInformationalVersion\(""(.*)""\)").Groups[1].Value;
+            var versionJson = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "../../../../../../../version.json"));
+            var version = Regex.Match(versionJson, "version\": \"(.*)\"").Groups[1].Value;
 
-            Assert.AreEqual(version,readmeMdVersion,"README.md in root did not match version in SharedAssemblyInfo.cs");
+            Assert.AreEqual(version, readmeMdVersion, "README.md in root did not match version in version.json");
 
         }
     }
