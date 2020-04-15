@@ -636,6 +636,61 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             Assert.AreEqual("TestMarkJobFailedImpl", failedDoc.FailedJobInfoDoc.ExceptionMessage);
         }
 
+        /// <summary>
+        /// Tests that we correctly handle receiving more than one set of messages for a given extraction key. This can happen in cases
+        /// where CohortExtractor partially processes an extraction request bit is interrupted, causing the message to be put back at the
+        /// head of the queue
+        /// </summary>
+        [Test]
+        public void TestDuplicateInfoMessageHandling()
+        {
+            Guid jobId = Guid.NewGuid();
+            var testJob = new MongoExtractJobDoc(
+                jobId,
+                MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
+                "1234",
+                ExtractJobStatus.WaitingForCollectionInfo,
+                "test/dir",
+                _dateTimeProvider.UtcNow(),
+                "SeriesInstanceUID",
+                1,
+                "CT",
+                null);
+            var testMongoExpectedFilesDoc = new MongoExpectedFilesDoc(
+                MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
+                "1.2.3.4",
+                new HashSet<MongoExpectedFileInfoDoc>
+                {
+                    new MongoExpectedFileInfoDoc(Guid.NewGuid(), "anon1.dcm"),
+                },
+                new MongoRejectedKeyInfoDoc(
+                    MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
+                    new Dictionary<string, int>())
+            );
+            var testMongoFileStatusDoc = new MongoFileStatusDoc(
+                MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
+                "anon1.dcm",
+                true,
+                false,
+                "Verified");
+
+            var client = new TestMongoClient();
+            client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
+            client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
+            client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].InsertOne(testMongoExpectedFilesDoc);
+            testMongoExpectedFilesDoc.Header = MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider);
+            testMongoExpectedFilesDoc.ExpectedFiles = new HashSet<MongoExpectedFileInfoDoc> { new MongoExpectedFileInfoDoc(Guid.NewGuid(), "anon1.dcm"), };
+            client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].InsertOne(testMongoExpectedFilesDoc);
+            client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"] = new MockExtractCollection<Guid, MongoFileStatusDoc>();
+            client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].InsertOne(testMongoFileStatusDoc);
+            testMongoFileStatusDoc.Header = MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider);
+            client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].InsertOne(testMongoFileStatusDoc);
+
+            var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
+
+            Assert.AreEqual(1, store.GetReadyJobs());
+        }
+
         #endregion
     }
 }
