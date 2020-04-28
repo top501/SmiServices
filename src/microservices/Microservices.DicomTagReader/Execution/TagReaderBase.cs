@@ -149,7 +149,6 @@ namespace Microservices.DicomTagReader.Execution
             foreach (DicomFileMessage fileMessage in fileMessages)
                 headers.Add(_fileMessageProducerModel.SendMessage(fileMessage, header));
 
-            _fileMessageProducerModel.WaitForConfirms();
 
             headers.ForEach(x => x.Log(Logger, LogLevel.Trace, $"Sent {header.MessageGuid}"));
 
@@ -159,9 +158,10 @@ namespace Microservices.DicomTagReader.Execution
             foreach (KeyValuePair<string, SeriesMessage> kvp in seriesMessages)
                 headers.Add(_seriesMessageProducerModel.SendMessage(kvp.Value, header));
 
-            _seriesMessageProducerModel.WaitForConfirms();
             headers.ForEach(x => x.Log(Logger, LogLevel.Trace, $"Sent {x.MessageGuid}"));
 
+            _seriesMessageProducerModel.WaitForConfirms();
+            _fileMessageProducerModel.WaitForConfirms();
             _swTotals[2] += _stopwatch.ElapsedTicks - beginSend;
             _swTotals[3] += _stopwatch.ElapsedTicks;
             _nMessagesSent += fileMessages.Count + seriesMessages.Count;
