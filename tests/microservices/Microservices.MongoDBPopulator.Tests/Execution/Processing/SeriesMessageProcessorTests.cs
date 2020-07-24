@@ -68,7 +68,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
         {
             _helper.Globals.MongoDbPopulatorOptions.FailedWriteLimit = 1;
 
-            var mockAdapter = new Mock<IMongoDbAdapter>();
+            var mockAdapter = new Mock<IMongoDbAdapter>(MockBehavior.Strict);
             mockAdapter
                 .Setup(x => x.WriteMany(It.IsAny<IList<BsonDocument>>(), It.IsAny<string>()))
                 .Returns(WriteResult.Failure);

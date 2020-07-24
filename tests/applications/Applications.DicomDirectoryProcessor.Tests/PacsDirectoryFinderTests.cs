@@ -62,7 +62,7 @@ namespace Applications.DicomDirectoryProcessor.Tests
 
             var totalSent = 0;
 
-            var mockProducerModel = new Mock<IProducerModel>();
+            var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
             mockProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(),
                                             null,

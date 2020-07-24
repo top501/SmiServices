@@ -86,8 +86,8 @@ namespace Microservices.DicomTagReader.Tests
                 NationalPACSAccessionNumber = "1234"
             };
 
-            TestSeriesModel = new Mock<IProducerModel>();
-            TestImageModel = new Mock<IProducerModel>();
+            TestSeriesModel = new Mock<IProducerModel>(MockBehavior.Strict);
+            TestImageModel = new Mock<IProducerModel>(MockBehavior.Strict);
 
             MockFileSystem = new MockFileSystem();
             MockFileSystem.AddDirectory(@"C:\Temp");

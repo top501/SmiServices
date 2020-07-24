@@ -74,7 +74,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing
             );
 
             var opts = new CohortPackagerOptions { JobWatcherTimeoutInSeconds = 123 };
-            var mockJobStore = new Mock<IExtractJobStore>();
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             var callbackUsed = false;
             var mockCallback = new Action<Exception>(_ => callbackUsed = true);
             var testNotifier = new TestJobCompleteNotifier();

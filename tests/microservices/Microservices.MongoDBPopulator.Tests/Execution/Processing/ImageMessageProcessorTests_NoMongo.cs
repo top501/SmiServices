@@ -48,7 +48,7 @@ namespace Microservices.MongoDBPopulator.Tests.Execution.Processing
             var testAdapter = new MongoTestAdapter();
             var processor = new ImageMessageProcessor(_testOptions.MongoDbPopulatorOptions, testAdapter, testModalities.Length + 1, null);
 
-            var mockModel = new Mock<IModel>();
+            var mockModel = new Mock<IModel>(MockBehavior.Strict);
             mockModel.Setup(x => x.BasicAck(It.Is<ulong>(y => y == ulong.MaxValue), It.IsAny<bool>()))
                 .Callback(() => throw new Exception("BasicAck called with delivery tag for CT message"));
 

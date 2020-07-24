@@ -46,7 +46,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         private sealed class TestMongoClient : StubMongoClient
         {
             public readonly TestExtractionDatabase ExtractionDatabase = new TestExtractionDatabase();
-            public readonly Mock<IClientSessionHandle> MockSessionHandle = new Mock<IClientSessionHandle>();
+            public readonly Mock<IClientSessionHandle> MockSessionHandle = new Mock<IClientSessionHandle>(MockBehavior.Strict);
 
             public override IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
             {
@@ -116,7 +116,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TVal> filter, FindOptions<TVal, TProjection> options = null, CancellationToken cancellationToken = new CancellationToken())
             {
-                var mockCursor = new Mock<IAsyncCursor<TProjection>>();
+                var mockCursor = new Mock<IAsyncCursor<TProjection>>(MockBehavior.Strict);
                 mockCursor
                     .SetupSequence(_ => _.MoveNext(It.IsAny<CancellationToken>()))
                     .Returns(true)

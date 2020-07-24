@@ -47,7 +47,7 @@ namespace Applications.DicomDirectoryProcessor.Tests
             };
 
             string rootDir = Path.GetFullPath("/PACS");
-            var mockProducerModel = new Mock<IProducerModel>();
+            var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
             var ddf = new BasicDicomDirectoryFinder(rootDir, fileSystem, "*.dcm", mockProducerModel.Object);
             ddf.SearchForDicomDirectories(rootDir);
 

@@ -72,7 +72,7 @@ namespace Applications.DicomDirectoryProcessor.Tests
 	    // Mock producer
 	    var totalSent = 0;
 
-            Mock<IProducerModel> mockProducerModel = new Mock<IProducerModel>();
+            Mock<IProducerModel> mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
             mockProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(),
                                             null,

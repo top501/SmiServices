@@ -513,7 +513,7 @@ namespace Microservices.IdentifierMapper.Tests
         {
             TestLogger.Setup();
 
-            var mockSwapper = new Mock<ISwapIdentifiers>();
+            var mockSwapper = new Mock<ISwapIdentifiers>(MockBehavior.Strict);
 
 
             var controlConsumer = new IdentifierMapperControlMessageHandler(mockSwapper.Object);

@@ -54,7 +54,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         [Test]
         public void TestMongoExpectedFilesDoc_FromMessage()
         {
-            var mockMessage = new Mock<ExtractFileCollectionInfoMessage>();
+            var mockMessage = new Mock<ExtractFileCollectionInfoMessage>(MockBehavior.Strict);
             mockMessage.Object.KeyValue = "TestKey";
             Guid jobId = Guid.NewGuid();
             mockMessage.Object.ExtractionJobIdentifier = jobId;
@@ -184,7 +184,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
         [Test]
         public void TestMongoRejectedKeyInfoDoc_FromMessage()
         {
-            var mockMessage = new Mock<ExtractFileCollectionInfoMessage>();
+            var mockMessage = new Mock<ExtractFileCollectionInfoMessage>(MockBehavior.Strict);
             Guid jobId = Guid.NewGuid();
             mockMessage.Object.ExtractionJobIdentifier = jobId;
             mockMessage.Object.RejectionReasons = new Dictionary<string, int>

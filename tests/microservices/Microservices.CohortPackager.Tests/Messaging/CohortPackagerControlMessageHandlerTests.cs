@@ -18,7 +18,7 @@ namespace Microservices.CohortPackager.Tests.Messaging
         {
             TestLogger.Setup();
 
-            var mockedWatcher = new Mock<IExtractJobWatcher>();
+            var mockedWatcher = new Mock<IExtractJobWatcher>(MockBehavior.Strict);
 
             Guid parsed = default(Guid);
             if (!string.IsNullOrWhiteSpace(message))

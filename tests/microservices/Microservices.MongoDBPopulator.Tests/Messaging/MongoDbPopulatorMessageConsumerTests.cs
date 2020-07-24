@@ -51,7 +51,7 @@ namespace Microservices.MongoDBPopulator.Tests.Messaging
             var consumer = new MongoDbPopulatorMessageConsumer<DicomFileMessage>(_helper.Globals.MongoDatabases.DicomStoreOptions, _helper.Globals.MongoDbPopulatorOptions, _helper.Globals.MongoDbPopulatorOptions.ImageQueueConsumerOptions);
 
             var nackCount = 0;
-            var mockModel = new Mock<IModel>();
+            var mockModel = new Mock<IModel>(MockBehavior.Strict);
             mockModel.Setup(x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>())).Callback(() => ++nackCount);
             consumer.SetModel(mockModel.Object);
 

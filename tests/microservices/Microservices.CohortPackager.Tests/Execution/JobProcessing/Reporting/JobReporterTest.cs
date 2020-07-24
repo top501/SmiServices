@@ -84,7 +84,7 @@ namespace Microservices.CohortPackager.Tests.Execution.JobProcessing.Reporting
                 "ZZ",
                 ExtractJobStatus.Completed);
 
-            var mockJobStore = new Mock<IExtractJobStore>();
+            var mockJobStore = new Mock<IExtractJobStore>(MockBehavior.Strict);
             mockJobStore.Setup(x => x.GetCompletedJobInfo(It.IsAny<Guid>())).Returns(testJobInfo);
 
             TestJobReporter reporter;
