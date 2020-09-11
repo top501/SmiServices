@@ -24,6 +24,7 @@ jobs:
     - MSSQL_PID='developer'
 
     before_install:
+    - sudo apt-get -q install eatmydata
     - cat lib/travis/*.asc | sudo -E apt-key add -
     - sort ${TRAVIS_ROOT}/etc/apt/sources.list lib/travis/apt.sources | uniq | sudo tee ${TRAVIS_ROOT}/etc/apt/sources.list >/dev/null
     - sudo apt-get -q update
@@ -31,6 +32,7 @@ jobs:
     - sudo apt-get -q install -y --no-install-recommends mssql-tools mssql-server
     - sudo /opt/mssql/bin/mssql-conf -n setup accept-eula
     - dotnet tool install -g JetBrains.ReSharper.GlobalTools --version 2020.2.0-*
+    - export PATH="$PATH:$HOME/.dotnet/tools"
 
     install:
     - jb inspectcode SmiServices.sln -o=jetbrains.txt
