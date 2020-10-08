@@ -22,6 +22,7 @@ jobs:
     - MSSQL_SA_PASSWORD="YourStrong!Passw0rd"
     - ACCEPT_EULA=Y
     - MSSQL_PID='developer'
+    - secure: "hKbgbuh0Kazbxy0B3cYy1enI2BIxH2PwysItRRyNrROGJxTQxdeAxp8ffOo+ux14ZPVg7065mIjGEM4fD+5NbcJxa/up8q+yHiMBt1CZ/wUcD1cSY8zgrNaVBTWMM6vTG7WUdGi4ajHbNudlzGYfBtGIilKIdnfHs3KEhncZ+W3PrLZLzcYKE4IKEYDbVPxuIaRudODQanwJj5sn3WxCLYdUHDPz7VM5dIMv14bHQccSd8za5h4q0H/Ag/GzkHFHRki4HWe4Wy3xKGzy75a3cP188DoAxiGmebNuJd/7LKmKjHQsE32MXlaEdkkgXiJPkHrTX/yllRYe4kELIYhGTUUYPuJkUfN+pFoT5N/zfxQILokDZ+eSFDKwZTtjzvbWxDQE0kxUcRGJqgLzS7axWqzBz7QHNsSazznD8FCeWE4U0eXVz4GdtPUXSpO3UTDlC0TWszgKFEnzVE3fORdv35OZYHl39mnUxN7H8NUp9W4cX9LMOq0yMefBg5ubj22BCrrPoIcohwcE+TPBUrLDJJLTcZz8fh7ZleDL/QA+hOQVJZMK2ygPuviVjp5i88GVzbhUENEfjGrYHRSbLYeYJjdt70a9wj+R0voncEqOtGutTZhQNrGhEyEuPqesnALMBrnwMEXBxzpy3wuDIs3ZBoCbeXxM6PxMuxnhbtVC87Y="
 
     before_install:
     - cat lib/travis/*.asc | sudo -E apt-key add -
@@ -30,6 +31,7 @@ jobs:
     - sudo apt-get -q install -y --no-install-recommends pigz rabbitmq-server libgdiplus tesseract-ocr libtesseract-dev maven dotnet-runtime-2.2 dotnet-sdk-3.1 dotnet-runtime-3.1
     - sudo apt-get -q install -y --no-install-recommends mssql-tools mssql-server
     - sudo /opt/mssql/bin/mssql-conf -n setup accept-eula
+    - dotnet tool install --global minicover
 
     install:
     - ( cd ./lib/java && ./installDat.sh && cd - )
@@ -61,8 +63,10 @@ jobs:
 
     script:
     - dotnet build -c Release --verbosity quiet
+    - $HOME/.dotnet/tools/minicover instrument
     - for i in `find . -type d -name netcoreapp3.1`; do if [ ! -e $i/default.yaml ]; then ln data/microserviceConfigs/default.yaml $i/ ; fi ; done
     - find ./tests -iname "*.csproj" -print0 | xargs -0 -L 1 dotnet test -p:Platform=x64 -c Release --verbosity=normal --no-build -s data/nunit.runsettings
+    - $HOME/.dotnet/tools/minicover coverallsreport --branch $TRAVIS_BRANCH --repo-token $REPO_TOKEN
     - 'if [ -f lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java ] ; then iconv -f iso-8859-1 -t utf-8 lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java > tmpiconv && mv tmpiconv lib/java/Util/source/java/org/rsna/util/ChunkedInputStream.java; fi'
     - mvn -ntp -q -f src/common/com.smi.microservices.parent/pom.xml test
     - mvn -ntp -q -f src/microservices/uk.ac.dundee.hic.nerd/ test
