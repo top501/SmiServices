@@ -15,7 +15,6 @@ before_build:
 - ps: "Add-Content c:\\mongodb\\mongod.cfg \"`r`nreplication:`r`n  replSetName: rs0`r`n\""
 - cmd: "net start mongodb"
 - cmd: "c:\\mongodb\\bin\\mongo --eval \"printjson(rs.initiate())\""
-- choco install opencover.portable
 - choco install rabbitmq
 
 build_script:
@@ -35,11 +34,6 @@ build_script:
   - ps: 7z x rdmp-cli-win-x64.zip -oC:\projects\smiservices\rdmp-cli
   - ps: C:\projects\smiservices\rdmp-cli\rdmp.exe install localhost\SQL2017 TEST_ -D -u sa -p Password12!
  
-  - cmd: "\"C:/ProgramData/chocolatey/bin/OpenCover.Console.exe\" -returntargetcode -target:\"c:/program files/dotnet/dotnet.exe\" -targetargs:\"test ./tests/run-all-tests.proj -c Release -p:BuildInParallel=false\" -filter:\"+[CohortExtractor]* +[CohortPackager]* +[DeadLetterReprocessor]* +[DicomRelationalMapper]* +[DicomReprocessor]* +[DicomTagReader]* +[IdentifierMapper]* +[IsIdentifiable]* +[MongoDbPopulator]* +[DicomDirectoryProcessor]* +[IsIdentifiableReviewer]* +[Smi.Common]* +[Smi.Common.MongoDb]* -[*NUnit*]*\"  -output:coverage.xml -register:appveyor -oldStyle -hideskipped:File"
-  - cmd: 'if defined COVERALLS_REPO_TOKEN %USERPROFILE%\\.nuget\\packages\\coveralls.io\\1.4.2\\tools\\coveralls.net.exe --opencover coverage.xml -r %COVERALLS_REPO_TOKEN%'
+  - cmd: "\"c:/program files/dotnet/dotnet.exe\" test ./tests/run-all-tests.proj -c Release -p:BuildInParallel=false"
 
 test: off
-
-environment:
-  COVERALLS_REPO_TOKEN:
-    secure: 4Py1L+giHVs0VRP352yS9tn7pZhlli+8FhAGhxBrZrHqop6bu6W3UL/G3oKCFUVK
