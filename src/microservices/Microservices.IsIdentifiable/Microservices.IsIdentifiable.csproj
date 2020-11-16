@@ -46,7 +46,7 @@
     <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
     <PackageReference Include="System.Security.AccessControl" Version="5.0.0" />
-    <PackageReference Include="Tesseract" Version="4.1.0-beta1" />
+    <PackageReference Include="Tesseract" Version="4.1.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Smi.Common.MongoDb\Smi.Common.MongoDb.csproj" />
