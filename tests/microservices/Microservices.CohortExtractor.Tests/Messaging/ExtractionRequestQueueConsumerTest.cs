@@ -78,7 +78,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
             var fakeFulfiller = new FakeFulfiller();
 
             var mockFileMessageProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            string fileMessageRoutingKey = null;
+            string? fileMessageRoutingKey = null;
             mockFileMessageProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsNotNull<string>()))
                 .Callback((IMessage _, IMessageHeader __, string routingKey) => { fileMessageRoutingKey = routingKey; })
@@ -121,7 +121,7 @@ namespace Microservices.CohortExtractor.Tests.Messaging
                 mockFileInfoMessageProducerModel.Object);
 
             var fatalCalled = false;
-            FatalErrorEventArgs fatalErrorEventArgs = null;
+            FatalErrorEventArgs? fatalErrorEventArgs = null;
             consumer.OnFatal += (sender, args) =>
             {
                 fatalCalled = true;

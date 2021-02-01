@@ -13,16 +13,14 @@ namespace Microservices.UpdateValues.Execution
     {
         public UpdateValuesQueueConsumer Consumer {get;set;}
 
-        public UpdateValuesHost( GlobalOptions globals, IRabbitMqAdapter rabbitMqAdapter = null, bool loadSmiLogConfig = true, bool threaded = false) : base(globals, rabbitMqAdapter, loadSmiLogConfig, threaded)
+        public UpdateValuesHost( GlobalOptions globals, IRabbitMqAdapter? rabbitMqAdapter = null, bool loadSmiLogConfig = true, bool threaded = false) : base(globals, rabbitMqAdapter, loadSmiLogConfig, threaded)
         {
+            IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions.GetRepositoryProvider();
+            Consumer = new UpdateValuesQueueConsumer(Globals.UpdateValuesOptions, repositoryLocator.CatalogueRepository);
         }
 
         public override void Start()
         {
-            
-            IRDMPPlatformRepositoryServiceLocator repositoryLocator = Globals.RDMPOptions.GetRepositoryProvider();
-            Consumer = new UpdateValuesQueueConsumer(Globals.UpdateValuesOptions,repositoryLocator.CatalogueRepository);
-
             RabbitMqAdapter.StartConsumer(Globals.UpdateValuesOptions, Consumer, isSolo: false);
         }
     }

@@ -225,7 +225,7 @@ namespace Smi.Common.Tests
 
             var o = new GlobalOptionsFactory().Load("default.yaml", TestContext.CurrentContext.TestDirectory);
 
-            var consumer = (IConsumer)Activator.CreateInstance(consumerType);
+            var consumer = Activator.CreateInstance(consumerType) as IConsumer;
 
             //connect to rabbit with a new consumer
             using (var tester = new MicroserviceTester(o.RabbitOptions, new []{_testConsumerOptions}))

@@ -90,12 +90,15 @@ namespace Smi.Common.Tests.DeadLetterMessagingTests
         [Test]
         public void TestCopyHeaders()
         {
-            IEnumerable<string> xDeathHeaderNames = typeof(RabbitMqXDeathHeaders)
+            IEnumerable<string?> xDeathHeaderNames = typeof(RabbitMqXDeathHeaders)
                 .GetFields(BindingFlags.Public | BindingFlags.Static)
                 .Where(fi => (fi.FieldType.IsAssignableFrom(typeof(string))))
-                .Select(x => (string)x.GetValue(null));
+                .Select(x => (string)x.GetValue(null)!);
 
-            Dictionary<string, object> source = xDeathHeaderNames.ToDictionary<string, string, object>(item => item, item => "test");
+            if (xDeathHeaderNames == null)
+                Assert.Fail();
+
+            Dictionary<string, object> source = xDeathHeaderNames!.ToDictionary<string, string, object>(item => item, item => "test");
             source.Add("other", "garbage data");
             var target = new Dictionary<string, object>();
 

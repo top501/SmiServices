@@ -49,7 +49,7 @@ namespace Microservices.DicomTagReader.Tests.Messaging
         public void TearDown() { }
 
 
-        private TagReaderBase GetMockTagReader(IFileSystem fileSystem = null)
+        private TagReaderBase GetMockTagReader(IFileSystem? fileSystem = null)
         {
             if (fileSystem == null)
                 fileSystem = _helper.MockFileSystem;

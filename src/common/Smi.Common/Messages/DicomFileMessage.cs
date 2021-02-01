@@ -17,7 +17,7 @@ namespace Smi.Common.Messages
         /// NationalPACSAccessionNumber obtained from the end of the directory path.
         /// </summary>
         [JsonProperty(Required = Required.AllowNull)]
-        public string NationalPACSAccessionNumber { get; set; }
+        public string? NationalPACSAccessionNumber { get; set; }
 
         /// <summary>
         /// File path relative to the root path.

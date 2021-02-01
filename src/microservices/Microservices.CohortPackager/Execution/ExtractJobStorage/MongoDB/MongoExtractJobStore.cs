@@ -32,7 +32,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         private readonly DateTimeProvider _dateTimeProvider;
 
 
-        public MongoExtractJobStore(IMongoClient client, string extractionDatabaseName, DateTimeProvider dateTimeProvider = null)
+        public MongoExtractJobStore(IMongoClient client, string extractionDatabaseName, DateTimeProvider? dateTimeProvider = null)
         {
             _client = client;
             _database = _client.GetDatabase(extractionDatabaseName);
@@ -371,7 +371,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         private static FilterDefinition<T> GetFilterForSpecificJob<T>(Guid extractionJobIdentifier) where T : MongoExtractJobDoc
             => Builders<T>.Filter.Eq(x => x.ExtractionJobIdentifier, extractionJobIdentifier);
 
-        private bool TryGetMongoExtractJobDoc(Guid extractionJobIdentifier, out MongoExtractJobDoc mongoExtractJobDoc)
+        private bool TryGetMongoExtractJobDoc(Guid extractionJobIdentifier, out MongoExtractJobDoc? mongoExtractJobDoc)
         {
             mongoExtractJobDoc = _inProgressJobCollection
                 .Find(GetFilterForSpecificJob<MongoExtractJobDoc>(extractionJobIdentifier))

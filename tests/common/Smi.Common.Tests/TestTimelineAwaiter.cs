@@ -25,7 +25,7 @@ namespace Smi.Common.Tests
         /// <param name="timeoutMessage"></param>
         /// <param name="timeout"></param>
         /// <param name="throwIfAnyFunc"></param>
-        public void Await(Func<bool> condition,string timeoutMessage= null,int timeout = 30000, Func<IEnumerable<Exception>> throwIfAnyFunc = null)
+        public void Await(Func<bool> condition,string? timeoutMessage = null,int timeout = 30000, Func<IEnumerable<Exception>>? throwIfAnyFunc = null)
         {
             if (Debugger.IsAttached)
                 timeout = int.MaxValue;

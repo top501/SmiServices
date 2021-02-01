@@ -40,8 +40,8 @@ namespace Microservices.CohortPackager.Tests
             }
 
             (
-                string expectedVerificationFailuresSummary,
-                string expectedVerificationFailuresFull
+                string? expectedVerificationFailuresSummary,
+                string? expectedVerificationFailuresFull
             ) = ExpectedVerificationFailures(verificationFailuresExpected, newLine);
 
             var expected = new List<string>
@@ -139,10 +139,10 @@ namespace Microservices.CohortPackager.Tests
             Assert.AreEqual(expectedStr, actualReport);
         }
 
-        private static Tuple<string, string> ExpectedVerificationFailures(Dictionary<string, Dictionary<string, List<string>>> verificationFailuresExpected, string newLine)
+        private static Tuple<string?, string?> ExpectedVerificationFailures(Dictionary<string, Dictionary<string, List<string>>>? verificationFailuresExpected, string newLine)
         {
             if (verificationFailuresExpected == null)
-                return new Tuple<string, string>(null, null);
+                return new Tuple<string?, string?>(null, null);
 
             var summarySb = new StringBuilder();
             var fullSb = new StringBuilder();
@@ -176,7 +176,7 @@ namespace Microservices.CohortPackager.Tests
             return new Tuple<string, string>(summarySb.ToString(), fullSb.ToString());
         }
 
-        private static string BlockedFiles(Dictionary<string, List<Tuple<int, string>>> blockedFilesExpected, string newLine)
+        private static string? BlockedFiles(Dictionary<string, List<Tuple<int, string>>>? blockedFilesExpected, string newLine)
         {
             if (blockedFilesExpected == null)
                 return null;

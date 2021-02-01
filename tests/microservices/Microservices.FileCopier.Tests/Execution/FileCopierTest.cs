@@ -75,8 +75,8 @@ namespace Microservices.FileCopier.Tests.Execution
         public void Test_FileCopier_HappyPath()
         {
             var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            ExtractedFileStatusMessage sentStatusMessage = null;
-            string sentRoutingKey = null;
+            ExtractedFileStatusMessage? sentStatusMessage = null;
+            string? sentRoutingKey = null;
             mockProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
                 .Callback((IMessage message, IMessageHeader header, string routingKey) =>
@@ -109,8 +109,8 @@ namespace Microservices.FileCopier.Tests.Execution
         public void Test_FileCopier_MissingFile_SendsMessage()
         {
             var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            ExtractedFileStatusMessage sentStatusMessage = null;
-            string sentRoutingKey = null;
+            ExtractedFileStatusMessage? sentStatusMessage = null;
+            string? sentRoutingKey = null;
             mockProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
                 .Callback((IMessage message, IMessageHeader header, string routingKey) =>
@@ -141,8 +141,8 @@ namespace Microservices.FileCopier.Tests.Execution
         public void Test_FileCopier_ExistingOutputFile_IsOverwritten()
         {
             var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            ExtractedFileStatusMessage sentStatusMessage = null;
-            string sentRoutingKey = null;
+            ExtractedFileStatusMessage? sentStatusMessage = null;
+            string? sentRoutingKey = null;
             mockProducerModel
                 .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
                 .Callback((IMessage message, IMessageHeader header, string routingKey) =>

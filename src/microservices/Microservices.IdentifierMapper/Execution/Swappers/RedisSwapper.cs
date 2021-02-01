@@ -43,7 +43,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
 
         public override string GetSubstitutionFor(string toSwap, out string reason)
         {
-            string result;
+            string? result;
             reason = null;
 
             //lookup in memory

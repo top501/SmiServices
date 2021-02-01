@@ -48,9 +48,15 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
             if (!Options.DestinationNoWhitespace)
                 return;
 
-            foreach (DataRow row in items.Rows)
-                foreach (DataColumn col in items.Columns)
+            foreach (DataRow? row in items.Rows)
+            {
+                if (row == null) continue;
+                foreach (DataColumn? col in items.Columns)
+                {
+                    if (col == null) continue;
                     row[col] = StripWhitespace(row[col]);
+                }
+            }
         }
     }
 }

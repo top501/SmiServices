@@ -97,12 +97,15 @@ namespace Microservices.IsIdentifiable.Rules
                 }
                     
                 // if the pattern matches the string we examined
-                var matches = IfPatternRegex.Matches(fieldValue);
+                MatchCollection matches = IfPatternRegex.Matches(fieldValue);
                 if (matches.Any())
                 {
-                    //if we are reporting all failing regexes
-                    if(Action == RuleAction.Report)
-                        foreach (Match match in matches)
+                    if (Action != RuleAction.Report)
+                        return Action;
+
+                    //if we are reporting all failing regexes   
+                    foreach (Match? match in matches)
+                        if (match != null)
                             ((IList) badParts).Add(new FailurePart(match.Value, As, match.Index));
 
                     return Action;

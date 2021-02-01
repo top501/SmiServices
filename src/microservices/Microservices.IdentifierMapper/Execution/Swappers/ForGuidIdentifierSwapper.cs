@@ -2,11 +2,9 @@
 using Smi.Common.Options;
 using NLog;
 using FAnsi.Discovery;
-using FAnsi.Discovery.TypeTranslation;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Text;
 using Smi.Common;
 using TypeGuesser;
@@ -21,9 +19,9 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
     {
         private readonly ILogger _logger;
 
-        private IMappingTableOptions _options;
+        private IMappingTableOptions? _options;
 
-        private DiscoveredTable _table;
+        private DiscoveredTable? _table;
 
         private readonly Dictionary<string, string> _cachedAnswers = new Dictionary<string, string>();
         private readonly object _oCacheLock = new object();
@@ -48,7 +46,7 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                 CreateTableIfNotExists();
         }
 
-        public override string GetSubstitutionFor(string toSwap, out string reason)
+        public override string? GetSubstitutionFor(string toSwap, out string? reason)
         {
             reason = null;
 
@@ -59,7 +57,6 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                 return null;
             }
 
-            string insertSql;
             lock (_oCacheLock)
             {
                 if (_cachedAnswers.ContainsKey(toSwap))
@@ -68,10 +65,13 @@ namespace Microservices.IdentifierMapper.Execution.Swappers
                     Success++;
                     return _cachedAnswers[toSwap];
                 }
-                    
-                                
+
                 var guid = Guid.NewGuid().ToString();
 
+                if (_options == null) throw new NullReferenceException(nameof(_options));
+                if (_table == null) throw new NullReferenceException(nameof(_table));
+
+                string insertSql;
                 switch(_options.MappingDatabaseType)
                 {
                     
@@ -155,6 +155,9 @@ where not exists(select *
 
         private void CreateTableIfNotExists()
         {
+            if (_options == null) throw new NullReferenceException(nameof(_options));
+            if (_table == null) throw new NullReferenceException(nameof(_table));
+            
             try
             {
                 //create the database if it doesn't exist

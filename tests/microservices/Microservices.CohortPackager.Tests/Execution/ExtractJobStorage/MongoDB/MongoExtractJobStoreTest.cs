@@ -49,7 +49,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             public readonly TestExtractionDatabase ExtractionDatabase = new TestExtractionDatabase();
             public readonly Mock<IClientSessionHandle> MockSessionHandle = new Mock<IClientSessionHandle>();
 
-            public override IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
+            public override IMongoDatabase GetDatabase(string name, MongoDatabaseSettings? settings = null)
             {
                 if (name == ExtractionDatabaseName)
                     return ExtractionDatabase;
@@ -57,7 +57,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             }
 
             // NOTE(rkm 2020-03-10) We don't actually implement transaction rollback as we only need to be able to start with a fresh collection for each test
-            public override IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => MockSessionHandle.Object;
+            public override IClientSessionHandle StartSession(ClientSessionOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => MockSessionHandle.Object;
         }
 
         /// <summary>
@@ -70,9 +70,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
             public readonly Dictionary<string, MockExtractCollection<Guid, MongoExpectedFilesDoc>> ExpectedFilesCollections = new Dictionary<string, MockExtractCollection<Guid, MongoExpectedFilesDoc>>();
             public readonly Dictionary<string, MockExtractCollection<Guid, MongoFileStatusDoc>> StatusCollections = new Dictionary<string, MockExtractCollection<Guid, MongoFileStatusDoc>>();
 
-            public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings = null)
+            public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings? settings = null)
             {
-                dynamic retCollection = null;
+                dynamic? retCollection = null;
                 if (name == "inProgressJobs")
                     retCollection = InProgressCollection;
                 else if (name == "completedJobs")
@@ -113,9 +113,9 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
 
             public bool RejectChanges { get; set; }
 
-            public override long CountDocuments(FilterDefinition<TVal> filter, CountOptions options = null, CancellationToken cancellationToken = new CancellationToken()) => Documents.Count;
+            public override long CountDocuments(FilterDefinition<TVal> filter, CountOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => Documents.Count;
 
-            public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TVal> filter, FindOptions<TVal, TProjection> options = null, CancellationToken cancellationToken = new CancellationToken())
+            public override IAsyncCursor<TProjection> FindSync<TProjection>(FilterDefinition<TVal> filter, FindOptions<TVal, TProjection>? options = null, CancellationToken cancellationToken = new CancellationToken())
             {
                 var mockCursor = new Mock<IAsyncCursor<TProjection>>();
                 mockCursor
@@ -150,7 +150,7 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                 return mockCursor.Object;
             }
 
-            public override void InsertOne(TVal document, InsertOneOptions options = null, CancellationToken cancellationToken = new CancellationToken())
+            public override void InsertOne(TVal document, InsertOneOptions? options = null, CancellationToken cancellationToken = new CancellationToken())
             {
                 if (RejectChanges)
                     throw new Exception("Rejecting changes");
@@ -162,14 +162,14 @@ namespace Microservices.CohortPackager.Tests.Execution.ExtractJobStorage.MongoDB
                     throw new Exception("Document already exists");
             }
 
-            public override void InsertMany(IEnumerable<TVal> documents, InsertManyOptions options = null, CancellationToken cancellationToken = new CancellationToken())
+            public override void InsertMany(IEnumerable<TVal> documents, InsertManyOptions? options = null, CancellationToken cancellationToken = new CancellationToken())
             {
                 foreach (TVal doc in documents)
                     InsertOne(doc, null, cancellationToken);
             }
 
             public override ReplaceOneResult ReplaceOne(FilterDefinition<TVal> filter, TVal replacement,
-                ReplaceOptions options = null, CancellationToken cancellationToken = new CancellationToken())
+                ReplaceOptions? options = null, CancellationToken cancellationToken = new CancellationToken())
             {
                 if (RejectChanges)
                     return ReplaceOneResult.Unacknowledged.Instance;

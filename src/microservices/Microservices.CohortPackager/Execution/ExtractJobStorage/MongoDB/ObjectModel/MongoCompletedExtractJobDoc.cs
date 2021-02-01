@@ -21,14 +21,14 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
 
         #region Equality Members
 
-        public bool Equals(MongoCompletedExtractJobDoc other)
+        public bool Equals(MongoCompletedExtractJobDoc? other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return base.Equals(other) && CompletedAt.Equals(other.CompletedAt);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
@@ -36,9 +36,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             return Equals((MongoCompletedExtractJobDoc)obj);
         }
 
-        public static bool operator ==(MongoCompletedExtractJobDoc left, MongoCompletedExtractJobDoc right) => Equals(left, right);
+        public static bool operator ==(MongoCompletedExtractJobDoc left, MongoCompletedExtractJobDoc? right) => Equals(left, right);
 
-        public static bool operator !=(MongoCompletedExtractJobDoc left, MongoCompletedExtractJobDoc right) => !Equals(left, right);
+        public static bool operator !=(MongoCompletedExtractJobDoc left, MongoCompletedExtractJobDoc? right) => !Equals(left, right);
 
         public override int GetHashCode()
         {

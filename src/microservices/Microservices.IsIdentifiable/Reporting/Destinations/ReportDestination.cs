@@ -27,7 +27,7 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
-        protected object StripWhitespace(object o)
+        protected object? StripWhitespace(object? o)
         {
             var s = o as string;
 

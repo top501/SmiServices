@@ -27,7 +27,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage.MongoD
         /// <param name="deadLetterDocument"></param>
         /// <param name="reason"></param>
         /// <param name="cause"></param>
-        public MongoDeadLetterGraveyardDocument(MongoDeadLetterDocument deadLetterDocument, string reason, Exception cause = null)
+        public MongoDeadLetterGraveyardDocument(MongoDeadLetterDocument deadLetterDocument, string reason, Exception? cause = null)
         {
             MessageGuid = deadLetterDocument.MessageGuid;
             DeadLetter = deadLetterDocument;

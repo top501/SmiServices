@@ -35,7 +35,7 @@ namespace Microservices.IdentifierMapper.Messaging
                     while (true)
                     {
                         List<Tuple<IMessageHeader, ulong>> done = new List<Tuple<IMessageHeader, ulong>>();
-                        Tuple<DicomFileMessage, IMessageHeader, ulong> t;
+                        Tuple<DicomFileMessage, IMessageHeader, ulong>? t;
                         t = msgq.Take();
 
                         lock (_producer)
@@ -76,7 +76,7 @@ namespace Microservices.IdentifierMapper.Messaging
 
         protected override void ProcessMessageImpl(IMessageHeader header, DicomFileMessage msg, ulong tag)
         {
-            string errorReason = null;
+            string? errorReason = null;
             var success = false;
 
             try
@@ -105,6 +105,8 @@ namespace Microservices.IdentifierMapper.Messaging
                 return;
             }
 
+            if (errorReason == null) throw new NullReferenceException(nameof(errorReason));
+            
             if (!success)
             {
                 Logger.Info("Could not swap identifiers for message " + header.MessageGuid + ". Reason was: " + errorReason);

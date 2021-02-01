@@ -70,13 +70,11 @@ namespace Microservices.IsIdentifiable.Rules
 
             for (int i = 0; i < result.Length; i+=parts)
             {
-                object c;
-                if (!Enum.TryParse(typeof(FailureClassification), result[i],true, out c))
+                if (!Enum.TryParse(typeof(FailureClassification), result[i],true, out object? c))
                     throw new Exception($"Could not parse TCP client classification '{result[i]}' (expected a member of Enum FailureClassification)");
-                var classification = (FailureClassification)c;
+                var classification = (FailureClassification)(c ?? throw new NullReferenceException());
 
-                int offset;
-                if(!int.TryParse(result[i+1],out offset))
+                if(!int.TryParse(result[i+1],out int offset))
                     throw new Exception($"Failed to parse offset from TCP client response.  Response was '{result[i+1]}' (expected int)");
 
                 string badWord = result[i+2];

@@ -137,7 +137,7 @@ namespace Smi.Common.Tests
 
         public void Create() => _directoryInfo.Create();
 
-        public IEnumerable<string> EnumerateFileNames(string searchPattern = null)
+        public IEnumerable<string> EnumerateFileNames(string? searchPattern = null)
         {
             return string.IsNullOrEmpty(searchPattern?.Trim())
                        ? _directoryInfo.GetFiles().Select(fi => fi.FullName)

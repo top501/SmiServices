@@ -80,8 +80,8 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
             if (!_headerWritten)
                 WriteHeader((from dc in items.Columns.Cast<DataColumn>() select dc.ColumnName).ToArray());
 
-            foreach (DataRow row in items.Rows)
-                WriteRow(row.ItemArray);
+            foreach (DataRow? row in items.Rows)
+                WriteRow(row?.ItemArray);
         }
 
         public override void Dispose()
@@ -89,10 +89,11 @@ namespace Microservices.IsIdentifiable.Reporting.Destinations
             _csvWriter.Dispose();
         }
 
-        private void WriteRow(IEnumerable<object> rowItems)
+        private void WriteRow(IEnumerable<object>? rowItems)
         {
-            foreach (string item in rowItems)
-                _csvWriter.WriteField(StripWhitespace(item));
+            if (rowItems != null)
+                foreach (string? item in rowItems)
+                    _csvWriter.WriteField(StripWhitespace(item));
 
             _csvWriter.NextRecord();
         }

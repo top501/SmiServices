@@ -27,7 +27,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterRepublishing
         private readonly TimeSpan _confirmTimeout;
 
         private static readonly IEnumerable<string> _messageHeaderNames;
-        private static readonly IEnumerable<string> _xDeathHeaderNames;
+        private static readonly IEnumerable<string?> _xDeathHeaderNames;
         
 
         static DeadLetterRepublisher()
@@ -37,7 +37,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterRepublishing
             _xDeathHeaderNames = typeof(RabbitMqXDeathHeaders)
                 .GetFields(BindingFlags.Public | BindingFlags.Static)
                 .Where(fi => (fi.FieldType.IsAssignableFrom(typeof(string))))
-                .Select(x => (string)x.GetValue(null));
+                .Select(x => (string)x.GetValue(null)!);
         }
 
         public DeadLetterRepublisher(IDeadLetterStore deadLetterStore, IModel model)
@@ -119,8 +119,8 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterRepublishing
             foreach (string property in _messageHeaderNames)
                 headers.Remove(property);
 
-            foreach (string property in _xDeathHeaderNames)
-                headers.Remove(property);
+            foreach (string? property in _xDeathHeaderNames)
+                if (property != null) headers.Remove(property);
         }
     }
 }

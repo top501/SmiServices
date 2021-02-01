@@ -169,7 +169,7 @@ namespace Microservices.IsIdentifiable.Runners
 
             SortRules();
 
-            IWhitelistSource source = null;
+            IWhitelistSource? source = null;
 
             try
             {
@@ -365,31 +365,36 @@ namespace Microservices.IsIdentifiable.Runners
             }
 
             //does the string contain chis?
-            foreach (Match m in _chiRegex.Matches(fieldValue))
-                yield return new FailurePart(m.Value, FailureClassification.PrivateIdentifier, m.Index);
+            foreach (Match? m in _chiRegex.Matches(fieldValue))
+                if (m != null)
+                    yield return new FailurePart(m.Value, FailureClassification.PrivateIdentifier, m.Index);
 
             if (!_opts.IgnorePostcodes)
-                foreach (Match m in _postcodeRegex.Matches(fieldValue))
+                foreach (Match? m in _postcodeRegex.Matches(fieldValue))
                     yield return new FailurePart(m.Value, FailureClassification.Postcode, m.Index);
 
             if (!_opts.IgnoreDatesInText)
             {
-                foreach (Match m in _dateYearFirst.Matches(fieldValue))
-                    yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
+                foreach (Match? m in _dateYearFirst.Matches(fieldValue))
+                    if (m != null)
+                        yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
 
-                foreach (Match m in _dateYearLast.Matches(fieldValue))
-                    yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
+                foreach (Match? m in _dateYearLast.Matches(fieldValue))
+                    if (m != null)
+                        yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
 
                 // XXX this may cause a duplicate failure if one above yields
-                foreach (Match m in _dateYearMissing.Matches(fieldValue))
-                    yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
+                foreach (Match? m in _dateYearMissing.Matches(fieldValue))
+                    if (m != null)
+                        yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
 
-                foreach (Match m in _symbolThenMonth.Matches(fieldValue))
-                    yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
+                foreach (Match? m in _symbolThenMonth.Matches(fieldValue))
+                    if (m != null)
+                        yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
 
-                foreach (Match m in _monthThenSymbol.Matches(fieldValue))
-                    yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
-
+                foreach (Match? m in _monthThenSymbol.Matches(fieldValue))
+                    if (m != null)
+                        yield return new FailurePart(m.Value.TrimEnd(), FailureClassification.Date, m.Index);
             }
         }
 
@@ -423,7 +428,7 @@ namespace Microservices.IsIdentifiable.Runners
 
         private IWhitelistSource GetWhitelistSource()
         {
-            IWhitelistSource source = null;
+            IWhitelistSource? source = null;
 
             if (!string.IsNullOrWhiteSpace(_opts.WhitelistCsv))
             {
@@ -488,9 +493,9 @@ namespace Microservices.IsIdentifiable.Runners
             foreach (var d in CustomRules.OfType<IDisposable>()) 
                 d.Dispose();
 
-            _logger?.Info($"Total runtime for {GetType().Name}:{_lifetime.Elapsed}");
-            _logger?.Info($"ValidateCacheHits:{ValidateCacheHits} Total ValidateCacheMisses:{ValidateCacheMisses}");
-            _logger?.Info($"Total FailurePart identified: {CountOfFailureParts}");
+            _logger.Info($"Total runtime for {GetType().Name}:{_lifetime.Elapsed}");
+            _logger.Info($"ValidateCacheHits:{ValidateCacheHits} Total ValidateCacheMisses:{ValidateCacheMisses}");
+            _logger.Info($"Total FailurePart identified: {CountOfFailureParts}");
         }
     }
 }

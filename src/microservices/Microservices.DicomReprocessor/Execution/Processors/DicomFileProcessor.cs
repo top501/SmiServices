@@ -60,7 +60,7 @@ namespace Microservices.DicomReprocessor.Execution.Processors
 
         public void ProcessDocument(BsonDocument document)
         {
-            string documentId = document["_id"].ToString();
+            string documentId = document["_id"].ToString() ?? throw new NullReferenceException();
 
             var headerDoc = document["header"] as BsonDocument;
 
@@ -136,6 +136,6 @@ namespace Microservices.DicomReprocessor.Execution.Processors
             Interlocked.Increment(ref _totalFailed);
         }
 
-        private static string AccNoOrNull(BsonValue bsonValue) => bsonValue.IsBsonNull ? null : bsonValue.AsString;
+        private static string? AccNoOrNull(BsonValue bsonValue) => bsonValue.IsBsonNull ? null : bsonValue.AsString;
     }
 }

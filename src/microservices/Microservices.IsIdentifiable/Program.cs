@@ -34,7 +34,7 @@ namespace Microservices.IsIdentifiable
 
             try
             {
-                string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                string? assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
                 if (assemblyFolder == null)
                     throw new Exception("Could not get the assemblyFolder");

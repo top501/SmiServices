@@ -66,7 +66,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage
         /// </summary>
         /// <param name="options">Options for connecting to MongoDB</param>
         /// <param name="rabbitMqVirtualHost">RabbitMQ vhost where the messages are located. Used as part of the MongoDB collection names if provided</param>
-        public MongoDeadLetterStore(MongoDbOptions options, string rabbitMqVirtualHost = null)
+        public MongoDeadLetterStore(MongoDbOptions options, string? rabbitMqVirtualHost = null)
         {
             _logger = LogManager.GetLogger(GetType().Name);
 
@@ -170,7 +170,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage
             return toReprocess;
         }
 
-        public void SendToGraveyard(Guid messageGuid, string reason, Exception cause = null)
+        public void SendToGraveyard(Guid messageGuid, string reason, Exception? cause = null)
         {
             _logger.Debug("Sending message " + messageGuid + " to the graveyard (" + reason + ")");
 
@@ -184,7 +184,7 @@ namespace Microservices.DeadLetterReprocessor.Execution.DeadLetterStorage
             }
         }
 
-        public void SendToGraveyard(BasicDeliverEventArgs deliverArgs, IMessageHeader header, string reason, Exception cause = null)
+        public void SendToGraveyard(BasicDeliverEventArgs deliverArgs, IMessageHeader header, string reason, Exception? cause = null)
         {
             _logger.Debug("Sending message " + header.MessageGuid + " to the graveyard (" + reason + ")");
 

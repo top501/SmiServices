@@ -203,7 +203,7 @@ namespace Microservices.DicomTagReader.Execution
                     {
                         if(entry.FullName.EndsWith(".dcm",StringComparison.CurrentCultureIgnoreCase))
                         {
-                            byte[] buffer = null;
+                            byte[]? buffer = null;
                     
                             buffer = ReadFully(entry.Open());
                             

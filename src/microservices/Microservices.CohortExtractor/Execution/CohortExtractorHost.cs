@@ -36,10 +36,10 @@ namespace Microservices.CohortExtractor.Execution
         public ExtractionRequestQueueConsumer Consumer { get; set; }
         private readonly CohortExtractorOptions _consumerOptions;
 
-        private IAuditExtractions _auditor;
-        private IExtractionRequestFulfiller _fulfiller;
+        private IAuditExtractions? _auditor;
+        private IExtractionRequestFulfiller? _fulfiller;
         private IProjectPathResolver _pathResolver;
-        private IProducerModel _fileMessageProducer;
+        private IProducerModel? _fileMessageProducer;
 
         /// <summary>
         /// Creates a new instance of the host with the given 
@@ -48,8 +48,16 @@ namespace Microservices.CohortExtractor.Execution
         /// <param name="auditor">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
         /// <param name="fulfiller">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
         /// <param name="loadSmiLogConfig">True to replace any existing <see cref="LogManager.Configuration"/> with the SMI logging configuration (which must exist in the file "Microservices.NLog.config" of the current directory)</param>
-        public CohortExtractorHost(GlobalOptions options, IAuditExtractions auditor, IExtractionRequestFulfiller fulfiller, bool loadSmiLogConfig = true)
-            : base(options, loadSmiLogConfig: loadSmiLogConfig)
+        public CohortExtractorHost(
+            GlobalOptions options, 
+            IAuditExtractions? auditor, 
+            IExtractionRequestFulfiller? fulfiller, 
+            bool loadSmiLogConfig = true
+        )   
+            : base(
+                options, 
+                loadSmiLogConfig: loadSmiLogConfig
+            )
         {
             _consumerOptions = options.CohortExtractorOptions;
             _consumerOptions.Validate();
@@ -78,7 +86,8 @@ namespace Microservices.CohortExtractor.Execution
 
             InitializeExtractionSources(repositoryLocator);
 
-            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller, _auditor, _pathResolver, _fileMessageProducer, fileMessageInfoProducer);
+            //NULLABLE: _fulfiller and _auditor set via InitializeExtractionSources above
+            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller!, _auditor!, _pathResolver, _fileMessageProducer, fileMessageInfoProducer);
 
             RabbitMqAdapter.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }

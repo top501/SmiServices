@@ -204,7 +204,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             Dictionary<string, Dictionary<string, List<string>>> groupedFailures = GetJobVerificationFailures(jobInfo.ExtractionJobIdentifier);
 
             // First deal with the pixel data
-            Dictionary<string, List<string>> pixelFailures = groupedFailures.GetValueOrDefault(PixelDataStr);
+            Dictionary<string, List<string>>? pixelFailures = groupedFailures.GetValueOrDefault(PixelDataStr);
             if (pixelFailures == null)
             {
                 Logger.Info($"No {PixelDataStr} failures found for the extraction job");
@@ -416,7 +416,7 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
             }
 
             // Now list the pixel data, which we instead order by decreasing length
-            if (groupedFailures.TryGetValue(PixelDataStr, out Dictionary<string, List<string>> pixelFailures))
+            if (groupedFailures.TryGetValue(PixelDataStr, out Dictionary<string, List<string>>? pixelFailures))
             {
                 WriteVerificationValuesTag(PixelDataStr, pixelFailures, streamWriter, sb);
                 WriteVerificationValues(pixelFailures.OrderByDescending(x => x.Key.Length), streamWriter, sb);

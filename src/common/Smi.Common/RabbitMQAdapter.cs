@@ -150,7 +150,7 @@ namespace Smi.Common
                 throw new ApplicationException($"Already a consumer on queue {consumerOptions.QueueName} and solo consumer was specified");
             }
 
-            Subscription subscription = null;
+            Subscription? subscription = null;
             var connected = false;
             var failed = 0;
 

@@ -54,7 +54,7 @@ namespace Microservices.DicomRelationalMapper.Tests
         private GlobalOptions _globals;
         private const string MongoTestDbName = "nUnitTestDb";
 
-        public void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string modalityPrefix = null)
+        public void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string? modalityPrefix = null)
         {
             TestLogger.Setup();
 
@@ -559,7 +559,7 @@ namespace Microservices.DicomRelationalMapper.Tests
                 }
 
                 //Now do extraction
-                var extractorHost = new CohortExtractorHost(_globals, null, null, loadSmiLogConfig: false);
+                var extractorHost = new CohortExtractorHost(_globals, auditor: null, fulfiller: null, loadSmiLogConfig: false);
 
                 extractorHost.Start();
 
@@ -571,9 +571,9 @@ namespace Microservices.DicomRelationalMapper.Tests
                     KeyTag = "SeriesInstanceUID",
                 };
 
-                foreach (DataRow row in _helper.ImageTable.GetDataTable().Rows)
+                foreach (DataRow? row in _helper.ImageTable.GetDataTable().Rows)
                 {
-                    var ser = (string)row["SeriesInstanceUID"];
+                    var ser = (string)row!["SeriesInstanceUID"];
 
                     if (!extract.ExtractionIdentifiers.Contains(ser))
                         extract.ExtractionIdentifiers.Add(ser);

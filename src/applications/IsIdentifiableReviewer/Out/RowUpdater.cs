@@ -32,7 +32,7 @@ namespace IsIdentifiableReviewer.Out
         /// </summary>
         public bool RulesOnly { get; set; }
 
-        Dictionary<DiscoveredTable,DiscoveredColumn> _primaryKeys = new Dictionary<DiscoveredTable, DiscoveredColumn>();
+        Dictionary<DiscoveredTable,DiscoveredColumn?> _primaryKeys = new Dictionary<DiscoveredTable, DiscoveredColumn?>();
 
         /// <summary>
         /// The strategy to use to build SQL updates to run on the database
@@ -59,7 +59,7 @@ namespace IsIdentifiableReviewer.Out
         /// <param name="server">Where to connect to get the data, can be null if <see cref="RulesOnly"/> is true</param>
         /// <param name="failure">The failure to redact/create a rule for</param>
         /// <param name="usingRule">Pass null to create a new rule or give value to reuse an existing rule</param>
-        public void Update(DiscoveredServer server, Failure failure, IsIdentifiableRule usingRule)
+        public void Update(DiscoveredServer? server, Failure failure, IsIdentifiableRule? usingRule)
         {
             //theres no rule yet so create one (and add to RedList.yaml)
             if(usingRule == null)
@@ -69,6 +69,8 @@ namespace IsIdentifiableReviewer.Out
             if(RulesOnly)
                 return;
 
+            if (server == null) throw new ArgumentNullException(nameof(server));
+            
             var syntax = server.GetQuerySyntaxHelper();
 
             //the fully specified name e.g. [mydb]..[mytbl]
@@ -90,7 +92,7 @@ namespace IsIdentifiableReviewer.Out
             //if we've never seen this table before
             if (!_primaryKeys.ContainsKey(table))
             {
-                var pk = table.DiscoverColumns().SingleOrDefault(k => k.IsPrimaryKey);
+                DiscoveredColumn? pk = table.DiscoverColumns().SingleOrDefault(k => k.IsPrimaryKey);
                 _primaryKeys.Add(table,pk);
             }
 
@@ -123,7 +125,7 @@ namespace IsIdentifiableReviewer.Out
         /// <param name="failure"></param>
         /// <param name="rule">The first rule that covered the <paramref name="failure"/></param>
         /// <returns>True if <paramref name="failure"/> is novel and not seen before</returns>
-        public bool OnLoad(DiscoveredServer server,Failure failure, out IsIdentifiableRule rule)
+        public bool OnLoad(DiscoveredServer? server, Failure failure, out IsIdentifiableRule? rule)
         {
             rule = null;
 

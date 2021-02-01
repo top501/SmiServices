@@ -130,7 +130,7 @@ namespace Microservices.CohortExtractor.Execution.RequestFulfillers
                         continue;
 
                     bool reject = false;
-                    string rejectReason = null;
+                    string? rejectReason = null;
                     
                     //Ask the rejectors how good this record is
                     foreach (IRejector rejector in rejectors)

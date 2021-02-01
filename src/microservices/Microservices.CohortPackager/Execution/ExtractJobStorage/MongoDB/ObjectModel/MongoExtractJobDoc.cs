@@ -125,9 +125,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
 
         #region Equality Members
 
-        protected bool Equals(MongoExtractJobDoc other)
+        protected bool Equals(MongoExtractJobDoc? other)
         {
-            return ExtractionJobIdentifier.Equals(other.ExtractionJobIdentifier) &&
+            return ExtractionJobIdentifier.Equals(other?.ExtractionJobIdentifier) &&
                    Equals(Header, other.Header) &&
                    ProjectNumber == other.ProjectNumber &&
                    JobStatus == other.JobStatus &&
@@ -141,7 +141,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
                    Equals(FailedJobInfoDoc, other.FailedJobInfoDoc);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
@@ -149,9 +149,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             return Equals((MongoExtractJobDoc)obj);
         }
 
-        public static bool operator ==(MongoExtractJobDoc left, MongoExtractJobDoc right) => Equals(left, right);
+        public static bool operator ==(MongoExtractJobDoc left, MongoExtractJobDoc? right) => Equals(left, right);
 
-        public static bool operator !=(MongoExtractJobDoc left, MongoExtractJobDoc right) => !Equals(left, right);
+        public static bool operator !=(MongoExtractJobDoc left, MongoExtractJobDoc? right) => !Equals(left, right);
 
         public override int GetHashCode()
         {
@@ -187,7 +187,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
 
         [BsonElement("stackTrace")]
         
-        public string StackTrace { get; set; }
+        public string? StackTrace { get; set; }
 
         [BsonElement("innerException")]
         public string? InnerException { get; set; }
@@ -207,16 +207,16 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
 
         #region Equality Members
 
-        public bool Equals(MongoFailedJobInfoDoc other)
+        public bool Equals(MongoFailedJobInfoDoc? other)
         {
             return
-                FailedAt.Equals(other.FailedAt) &&
+                FailedAt.Equals(other?.FailedAt) &&
                 ExceptionMessage == other.ExceptionMessage &&
                 StackTrace == other.StackTrace &&
                 InnerException == other.InnerException;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
@@ -224,9 +224,9 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
             return Equals((MongoFailedJobInfoDoc)obj);
         }
 
-        public static bool operator ==(MongoFailedJobInfoDoc left, MongoFailedJobInfoDoc right) => Equals(left, right);
+        public static bool operator ==(MongoFailedJobInfoDoc left, MongoFailedJobInfoDoc? right) => Equals(left, right);
 
-        public static bool operator !=(MongoFailedJobInfoDoc left, MongoFailedJobInfoDoc right) => !Equals(left, right);
+        public static bool operator !=(MongoFailedJobInfoDoc left, MongoFailedJobInfoDoc? right) => !Equals(left, right);
 
         public override int GetHashCode()
         {

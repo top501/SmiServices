@@ -23,7 +23,7 @@ namespace Microservices.IsIdentifiable.Failures
         /// </summary>
         public string Word { get; set; }
 
-        public FailurePart(string word,FailureClassification classification,int offset =-1)
+        public FailurePart(string word, FailureClassification classification,int offset =-1)
         {
             Word = word;
             Classification = classification;

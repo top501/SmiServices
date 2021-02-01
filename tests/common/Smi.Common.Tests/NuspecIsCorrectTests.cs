@@ -1,4 +1,5 @@
 
+using System;
 using NUnit.Framework;
 using System.IO;
 using System.Linq;
@@ -72,8 +73,9 @@ namespace Smi.Common.Tests
                 new Regex(@"<dependency\s+id=""(.*)""\s+version=""([^""]*)""", RegexOptions.IgnoreCase);
 
             //For each dependency listed in the csproj
-            foreach (Match p in rPackageRef.Matches(File.ReadAllText(csproj)))
+            foreach (Match? p in rPackageRef.Matches(File.ReadAllText(csproj)))
             {
+                if(p == null) continue;
                 string package = p.Groups[1].Value;
                 string version = p.Groups[2].Value;
 
@@ -87,8 +89,10 @@ namespace Smi.Common.Tests
                 if (!_analyzers.Contains(package) && nuspec != null)
                 {
                     //make sure it appears in the nuspec
-                    foreach (Match d in rDependencyRef.Matches(File.ReadAllText(nuspec)))
+                    foreach (Match? d in rDependencyRef.Matches(File.ReadAllText(nuspec)))
                     {
+                        if (d == null) throw new NullReferenceException(nameof(d));
+                        
                         string packageDependency = d.Groups[1].Value;
                         string versionDependency = d.Groups[2].Value;
 

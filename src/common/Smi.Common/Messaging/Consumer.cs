@@ -28,7 +28,7 @@ namespace Smi.Common.Messaging
         /// <summary>
         /// Event raised when Fatal method called
         /// </summary>
-        public event ConsumerFatalHandler OnFatal;
+        public event ConsumerFatalHandler? OnFatal;
 
 
         protected readonly ILogger Logger;
@@ -36,7 +36,7 @@ namespace Smi.Common.Messaging
         private readonly object _oConsumeLock = new object();
         private bool _exiting;
 
-        protected IModel Model;
+        protected IModel? Model;
 
         public virtual void Shutdown()
         {
@@ -157,15 +157,15 @@ namespace Smi.Common.Messaging
         /// <param name="tag"></param>
         protected void DiscardSingleMessage(ulong tag)
         {
-            Model.BasicNack(tag, multiple: false, requeue: false);
+            //NULLABLE: SetModel should always be called before this point
+            Model!.BasicNack(tag, multiple: false, requeue: false);
             NackCount++;
         }
 
-        protected virtual void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception exception)
+        protected virtual void ErrorAndNack(IMessageHeader? header, ulong tag, string message, Exception? exception)
         {
-            if (header != null)
-                header.Log(Logger, LogLevel.Error, message, exception);
-
+            header?.Log(Logger, LogLevel.Error, message, exception);
+            
             DiscardSingleMessage(tag);
         }
 
@@ -174,12 +174,12 @@ namespace Smi.Common.Messaging
         /// </summary>
         /// <param name="header"></param>
         /// <param name="tag"></param>
-        protected void Ack(IMessageHeader header, ulong tag)
+        protected void Ack(IMessageHeader? header, ulong tag)
         {
-            if (header != null)
-                header.Log(Logger, LogLevel.Trace, "Acknowledged");
+            header?.Log(Logger, LogLevel.Trace, "Acknowledged");
 
-            Model.BasicAck(tag, false);
+            //NULLABLE: SetModel should always be called before this point
+            Model!.BasicAck(tag, false);
             AckCount++;
         }
 
@@ -194,7 +194,8 @@ namespace Smi.Common.Messaging
             foreach (IMessageHeader header in batchHeaders)
                 header.Log(Logger, LogLevel.Trace, "Acknowledged");
 
-            Model.BasicAck(latestDeliveryTag, true);
+            //NULLABLE: SetModel should always be called before this point
+            Model!.BasicAck(latestDeliveryTag, true);
             AckCount += batchHeaders.Count;
         }
 
@@ -215,7 +216,7 @@ namespace Smi.Common.Messaging
 
                 Logger.Fatal(exception, msg);
 
-                ConsumerFatalHandler onFatal = OnFatal;
+                ConsumerFatalHandler? onFatal = OnFatal;
 
                 if (onFatal != null)
                 {
