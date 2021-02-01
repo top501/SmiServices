@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+﻿
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using System;
 using System.IO.Abstractions;
@@ -8,12 +8,13 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting
 {
     public static class JobReporterFactory
     {
-        public static IJobReporter GetReporter([NotNull] string reporterTypeStr,
-            [NotNull] IExtractJobStore jobStore,
-            [NotNull] IFileSystem fileSystem,
-            [NotNull] string extractRoot,
-            [NotNull] string reportFormatStr,
-            [CanBeNull] string reportNewLine,
+        public static IJobReporter GetReporter(
+             string reporterTypeStr,
+             IExtractJobStore jobStore,
+             IFileSystem fileSystem,
+             string extractRoot,
+             string reportFormatStr,
+            string? reportNewLine,
             bool createJobIdFile = true
         )
         {

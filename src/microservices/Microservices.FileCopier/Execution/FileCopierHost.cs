@@ -1,4 +1,4 @@
-using JetBrains.Annotations;
+
 using Microservices.FileCopier.Messaging;
 using Smi.Common.Execution;
 using Smi.Common.Messaging;
@@ -15,8 +15,8 @@ namespace Microservices.FileCopier.Execution
         private readonly FileCopyQueueConsumer _consumer;
 
         public FileCopierHost(
-            [NotNull] GlobalOptions options,
-            [CanBeNull]IFileSystem fileSystem = null,
+             GlobalOptions options,
+            IFileSystem? fileSystem = null,
             bool loadSmiLogConfig = true
             )
         : base(

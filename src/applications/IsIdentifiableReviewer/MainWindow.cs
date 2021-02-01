@@ -463,11 +463,11 @@ namespace IsIdentifiableReviewer
                     dlg.Add(text);
             }
             
-            foreach (var value in options)
+            foreach (T value in options)
             {
                 T v1 = (T) value;
 
-                string name = value.ToString();
+                var name = value?.ToString();
 
                 var btn = new Button(0, line++, name);
                 btn.Clicked += () =>

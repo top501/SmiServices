@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
+
 using Microservices.CohortPackager.Execution.ExtractJobStorage;
 using Microservices.CohortPackager.Execution.JobProcessing.Notifying;
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
@@ -33,8 +33,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing
             CohortPackagerOptions options,
             IExtractJobStore jobStore,
             Action<Exception> exceptionCallback,
-            [NotNull] IJobCompleteNotifier jobCompleteNotifier,
-            [NotNull] IJobReporter reporter)
+             IJobCompleteNotifier jobCompleteNotifier,
+             IJobReporter reporter)
         {
             _jobStore = jobStore;
             _exceptionCallback = exceptionCallback;

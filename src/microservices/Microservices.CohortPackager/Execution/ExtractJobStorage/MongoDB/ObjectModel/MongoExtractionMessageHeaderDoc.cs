@@ -1,5 +1,5 @@
 ﻿using System;
-using JetBrains.Annotations;
+
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Smi.Common.Helpers;
@@ -22,7 +22,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         public Guid MessageGuid { get; set; }
 
         [BsonElement("producerExecutableName")]
-        [NotNull]
+        
         public string ProducerExecutableName { get; set; }
 
         [BsonElement("producerProcessID")]
@@ -32,8 +32,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         public DateTime OriginalPublishTimestamp { get; set; }
 
         [BsonElement("parents")]
-        [CanBeNull]
-        public string Parents { get; set; }
+        public string? Parents { get; set; }
 
         [BsonElement("receivedAt")]
         public DateTime ReceivedAt { get; set; }
@@ -42,10 +41,10 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         public MongoExtractionMessageHeaderDoc(
             Guid extractionJobIdentifier,
             Guid messageGuid,
-            [NotNull] string producerExecutableName,
+             string producerExecutableName,
             int producerProcessId,
             DateTime originalPublishTimestamp,
-            [CanBeNull] string parents,
+            string? parents,
             DateTime receivedAt)
         {
             ExtractionJobIdentifier = (extractionJobIdentifier != default(Guid)) ? extractionJobIdentifier : throw new ArgumentNullException(nameof(extractionJobIdentifier));
@@ -59,8 +58,8 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
 
         public static MongoExtractionMessageHeaderDoc FromMessageHeader(
             Guid extractionJobIdentifier,
-            [NotNull] IMessageHeader header,
-            [NotNull] DateTimeProvider dateTimeProvider)
+             IMessageHeader header,
+             DateTimeProvider dateTimeProvider)
         {
             return new MongoExtractionMessageHeaderDoc(
                 extractionJobIdentifier,

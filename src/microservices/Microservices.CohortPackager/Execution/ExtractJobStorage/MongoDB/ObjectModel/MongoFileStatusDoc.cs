@@ -1,10 +1,11 @@
-﻿using JetBrains.Annotations;
+﻿
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Smi.Common.Messages.Extraction;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using JetBrains.Annotations;
 
 
 namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel
@@ -13,16 +14,15 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
     public class MongoFileStatusDoc : ISupportInitialize
     {
         [BsonElement("header")]
-        [NotNull]
+        
         public MongoExtractionMessageHeaderDoc Header { get; set; }
 
         [BsonElement("dicomFilePath")]
-        [NotNull]
+        
         public string DicomFilePath { get; set; }
 
         [BsonElement("outputFileName")]
-        [CanBeNull]
-        public string OutputFileName { get; set; }
+        public string? OutputFileName { get; set; }
 
         [BsonElement("wasAnonymised")]
         public bool WasAnonymised { get; set; }
@@ -38,8 +38,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         /// Should only be null for identifiable extractions where the file was successfully copied. Otherwise will be the failure reason from CTP or the report content from the IsIdentifiable verification
         /// </summary>
         [BsonElement("statusMessage")]
-        [CanBeNull]
-        public string StatusMessage { get; set; }
+        public string? StatusMessage { get; set; }
 
         /// <summary>
         /// Used only to handle old-format documents when deserializing
@@ -50,13 +49,13 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
 
 
         public MongoFileStatusDoc(
-            [NotNull] MongoExtractionMessageHeaderDoc header,
-            [NotNull] string dicomFilePath,
-            [CanBeNull] string outputFileName,
+             MongoExtractionMessageHeaderDoc header,
+             string dicomFilePath,
+            string? outputFileName,
             bool wasAnonymised,
             bool isIdentifiable,
             ExtractedFileStatus extractedFileStatus,
-            [CanBeNull] string statusMessage)
+            string? statusMessage)
         {
             Header = header ?? throw new ArgumentNullException(nameof(header));
             DicomFilePath = dicomFilePath ?? throw new ArgumentNullException(nameof(dicomFilePath));

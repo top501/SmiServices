@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +15,7 @@ namespace Smi.Common.Options
         /// </summary>
         /// <param name="decorators"></param>
         public GlobalOptionsFactory(
-            [CanBeNull] ICollection<IOptionsDecorator> decorators = null
+            ICollection<IOptionsDecorator>? decorators = null
         )
         {
             if (decorators != null)
@@ -24,7 +24,7 @@ namespace Smi.Common.Options
                 _decorators.Add(new EnvironmentVariableDecorator());
         }
 
-        public GlobalOptions Load(string environment = "default", string currentDirectory = null)
+        public GlobalOptions Load(string environment = "default", string? currentDirectory = null)
         {
             IDeserializer deserializer = new DeserializerBuilder()
                                     .WithObjectFactory(GetGlobalOption)

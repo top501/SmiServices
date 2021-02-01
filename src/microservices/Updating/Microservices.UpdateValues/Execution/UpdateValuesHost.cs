@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+﻿
 using Rdmp.Core.Repositories;
 using Smi.Common;
 using Smi.Common.Execution;
@@ -13,7 +13,7 @@ namespace Microservices.UpdateValues.Execution
     {
         public UpdateValuesQueueConsumer Consumer {get;set;}
 
-        public UpdateValuesHost([NotNull] GlobalOptions globals, IRabbitMqAdapter rabbitMqAdapter = null, bool loadSmiLogConfig = true, bool threaded = false) : base(globals, rabbitMqAdapter, loadSmiLogConfig, threaded)
+        public UpdateValuesHost( GlobalOptions globals, IRabbitMqAdapter rabbitMqAdapter = null, bool loadSmiLogConfig = true, bool threaded = false) : base(globals, rabbitMqAdapter, loadSmiLogConfig, threaded)
         {
         }
 

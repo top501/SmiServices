@@ -1,8 +1,9 @@
 ﻿using CsvHelper.Configuration.Attributes;
-using JetBrains.Annotations;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords

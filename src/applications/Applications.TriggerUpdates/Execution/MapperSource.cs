@@ -16,7 +16,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
 using System.Threading;
-using JetBrains.Annotations;
+
 
 
 namespace TriggerUpdates.Execution
@@ -38,7 +38,7 @@ namespace TriggerUpdates.Execution
         private DbCommand _currentCommandMainTable;
         private DbCommand _currentCommandOtherTables;
 
-        public MapperSource([NotNull] GlobalOptions globalOptions, TriggerUpdatesFromMapperOptions cliOptions)
+        public MapperSource(GlobalOptions globalOptions, TriggerUpdatesFromMapperOptions cliOptions)
         {
             _cliOptions = cliOptions;
             _globalOptions = globalOptions;

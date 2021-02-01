@@ -5,6 +5,7 @@
     <DebugType>full</DebugType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <Platforms>x64</Platforms>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>

@@ -1,5 +1,5 @@
 using System;
-using JetBrains.Annotations;
+
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -19,8 +19,8 @@ namespace Microservices.IsIdentifiable.Service
         private IProducerModel _producerModel;
 
         public IsIdentifiableHost(
-            [NotNull] GlobalOptions globals,
-            [NotNull] IsIdentifiableServiceOptions serviceOpts,
+             GlobalOptions globals,
+             IsIdentifiableServiceOptions serviceOpts,
             bool loadSmiLogConfig = true
         )
             : base(globals, loadSmiLogConfig: loadSmiLogConfig)

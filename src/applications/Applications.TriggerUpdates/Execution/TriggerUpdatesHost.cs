@@ -11,7 +11,7 @@ namespace TriggerUpdates.Execution
         private ITriggerUpdatesSource _source;
         private IProducerModel _producer;
 
-        public TriggerUpdatesHost(GlobalOptions options,ITriggerUpdatesSource source,IRabbitMqAdapter rabbitMqAdapter = null,bool loadSmiLogConfig = true):base(options,rabbitMqAdapter,loadSmiLogConfig)
+        public TriggerUpdatesHost(GlobalOptions options,ITriggerUpdatesSource source,IRabbitMqAdapter? rabbitMqAdapter = null,bool loadSmiLogConfig = true):base(options,rabbitMqAdapter,loadSmiLogConfig)
         {
             this._source = source;
             _producer =  RabbitMqAdapter.SetupProducer(options.TriggerUpdatesOptions, isBatch: false);

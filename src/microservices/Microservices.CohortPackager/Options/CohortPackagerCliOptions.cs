@@ -1,10 +1,11 @@
 ﻿using CommandLine;
 using CommandLine.Text;
-using JetBrains.Annotations;
+
 using Microservices.CohortPackager.Execution.JobProcessing.Reporting;
 using Smi.Common.Options;
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 
 namespace Microservices.CohortPackager.Options

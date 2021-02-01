@@ -6,7 +6,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using JetBrains.Annotations;
+
 using Smi.Common.Messages;
 using Smi.Common.Messaging;
 using NLog;
@@ -122,8 +122,7 @@ namespace Applications.DicomDirectoryProcessor.Execution.DirectoryFinders
         /// </summary>
         /// <param name="dirPath">Subdirectories under root (not including root) e.g. sub_dir/sub_sub_dir</param>
         /// <returns></returns>
-        [CanBeNull]
-        protected virtual string GetNationalPacsAccessionNumberFrom(string dirPath) => Path.GetFileName(dirPath);
+        protected virtual string? GetNationalPacsAccessionNumberFrom(string dirPath) => Path.GetFileName(dirPath);
 
         protected string CalcAverages()
         {

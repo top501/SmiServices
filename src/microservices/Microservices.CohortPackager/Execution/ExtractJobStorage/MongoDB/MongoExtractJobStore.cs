@@ -1,4 +1,4 @@
-using JetBrains.Annotations;
+
 using Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 using MongoDB.Driver;
 using Smi.Common.Helpers;
@@ -28,7 +28,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB
         private readonly IMongoCollection<MongoFileStatusDoc> _completedStatusCollection;
         private readonly IMongoCollection<MongoCompletedExtractJobDoc> _completedJobCollection;
 
-        [NotNull]
+        
         private readonly DateTimeProvider _dateTimeProvider;
 
 

@@ -1,6 +1,6 @@
 
 using DicomTypeTranslation;
-using JetBrains.Annotations;
+
 using NLog;
 using RabbitMQ.Client;
 using Smi.Common.Events;
@@ -17,7 +17,7 @@ namespace Smi.Common.Execution
 {
     public abstract class MicroserviceHost : IMicroserviceHost
     {
-        public event HostFatalHandler OnFatal;
+        public event HostFatalHandler? OnFatal;
 
         protected readonly string HostProcessName;
         protected readonly int HostProcessID;
@@ -32,9 +32,9 @@ namespace Smi.Common.Execution
         private bool _auxConnectionsCreated;
 
         private readonly ProducerOptions _fatalLoggingProducerOptions;
-        private IProducerModel _fatalLoggingProducer;
+        private IProducerModel? _fatalLoggingProducer;
 
-        private readonly ControlMessageConsumer _controlMessageConsumer;
+        private readonly ControlMessageConsumer? _controlMessageConsumer;
 
         private bool _stopCalled;
 
@@ -48,8 +48,8 @@ namespace Smi.Common.Execution
         /// <param name="loadSmiLogConfig">True to replace any existing <see cref="LogManager.Configuration"/> with the SMI logging configuration (which must exist in the file "Smi.NLog.config" of the current directory)</param>
         /// <param name="threaded"></param>
         protected MicroserviceHost(
-            [NotNull] GlobalOptions globals,
-            IRabbitMqAdapter rabbitMqAdapter = null,
+            GlobalOptions globals,
+            IRabbitMqAdapter? rabbitMqAdapter = null,
             bool loadSmiLogConfig = true,
             bool threaded = false)
         {
@@ -58,7 +58,7 @@ namespace Smi.Common.Execution
 
             HostProcessName = Assembly.GetEntryAssembly()?.GetName().Name ?? throw new ApplicationException("Couldn't get the Assembly name!");
 
-            string logConfigPath = null;
+            string? logConfigPath = null;
 
             // We may not want to do this during tests, however this should always be true otherwise
             if (loadSmiLogConfig)
@@ -115,8 +115,12 @@ namespace Smi.Common.Execution
 
             OnFatal += (sender, args) => Fatal(args.Message, args.Exception);
 
-            RabbitMqAdapter = rabbitMqAdapter;
-            if (RabbitMqAdapter == null)
+
+            if (rabbitMqAdapter != null)
+            {
+                RabbitMqAdapter = rabbitMqAdapter;
+            }
+            else
             {
                 ConnectionFactory connectionFactory = globals.RabbitOptions.CreateConnectionFactory();
                 RabbitMqAdapter = new RabbitMqAdapter(connectionFactory, HostProcessName + HostProcessID, OnFatal, threaded);
@@ -134,7 +138,8 @@ namespace Smi.Common.Execution
         protected void AddControlHandler(IControlMessageHandler handler)
         {
             //(a, m) => action, message content
-            _controlMessageConsumer.ControlEvent += handler.ControlMessageHandler;
+            if (_controlMessageConsumer != null) 
+                _controlMessageConsumer.ControlEvent += handler.ControlMessageHandler;
         }
 
         /// <summary>
@@ -154,7 +159,8 @@ namespace Smi.Common.Execution
                     throw new ApplicationException("Rabbit adapter has consumers before aux. connections created");
 
                 _fatalLoggingProducer = RabbitMqAdapter.SetupProducer(_fatalLoggingProducerOptions, isBatch: false);
-                RabbitMqAdapter.StartConsumer(_controlMessageConsumer.ControlConsumerOptions, _controlMessageConsumer, isSolo: false);
+                if(_controlMessageConsumer != null)
+                    RabbitMqAdapter.StartConsumer(_controlMessageConsumer.ControlConsumerOptions, _controlMessageConsumer, isSolo: false);
             }
         }
 
@@ -179,7 +185,7 @@ namespace Smi.Common.Execution
 
             try
             {
-                _controlMessageConsumer.Shutdown();
+                _controlMessageConsumer?.Shutdown();
             }
             catch (Exception e)
             {
@@ -212,7 +218,7 @@ namespace Smi.Common.Execution
             if (_fatalLoggingProducer != null)
                 try
                 {
-                    _fatalLoggingProducer.SendMessage(new FatalErrorMessage(msg, exception), null);
+                    _fatalLoggingProducer.SendMessage(new FatalErrorMessage(msg, exception), isInResponseTo: null);
                 }
                 catch (Exception e)
                 {

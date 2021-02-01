@@ -1,7 +1,8 @@
-﻿using JetBrains.Annotations;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 
 namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvRecords
@@ -11,14 +12,14 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
         /// <summary>
         /// The tag name which contained the failure value 
         /// </summary>
-        [NotNull]
+        
         [UsedImplicitly]
         public string TagName { get; }
 
         /// <summary>
         /// The value which has been recorded as a validation failure
         /// </summary>
-        [NotNull]
+        
         [UsedImplicitly]
         public string FailureValue { get; }
 
@@ -52,8 +53,8 @@ namespace Microservices.CohortPackager.Execution.JobProcessing.Reporting.CsvReco
 
 
         public TagDataSummaryCsvRecord(
-            [NotNull] string tagName,
-            [NotNull] string failureValue,
+             string tagName,
+             string failureValue,
             uint occurrences,
             double frequency
         )

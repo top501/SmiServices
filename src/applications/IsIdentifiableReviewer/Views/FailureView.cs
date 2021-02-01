@@ -52,7 +52,7 @@ namespace IsIdentifiableReviewer.Views
 
             for (int y = 0; y < h; y++)
             {
-                string currentLine = lines.Length > y ? lines[y] : null;
+                string? currentLine = lines.Length > y ? lines[y] : null;
 
                 for (int x = 0; x < w; x++)
                 {

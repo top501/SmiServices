@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
+
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
@@ -35,11 +35,11 @@ namespace Smi.Common.Messaging
 
 
         public ControlMessageConsumer(
-            [NotNull] IConnectionFactory connectionFactory,
-            [NotNull] string processName,
+            IConnectionFactory connectionFactory,
+            string processName,
             int processId,
-            [NotNull] string controlExchangeName,
-            [NotNull] Action<string> stopEvent)
+            string controlExchangeName,
+            Action<string> stopEvent)
         {
             if (processName == null)
                 throw new ArgumentNullException(nameof(processName));
@@ -74,7 +74,7 @@ namespace Smi.Common.Messaging
                 Logger.Info("Control message received with routing key: " + e.RoutingKey);
 
                 string[] split = e.RoutingKey.ToLower().Split('.');
-                string body = GetBodyFromArgs(e);
+                string? body = GetBodyFromArgs(e);
 
                 if (split.Length < 4)
                 {
@@ -200,12 +200,12 @@ namespace Smi.Common.Messaging
             }
         }
 
-        private static string GetBodyFromArgs(BasicDeliverEventArgs e)
+        private static string? GetBodyFromArgs(BasicDeliverEventArgs e)
         {
             if (e.Body == null || e.Body.Length == 0)
                 return null;
 
-            Encoding enc = null;
+            Encoding? enc = null;
 
             if (!string.IsNullOrWhiteSpace(e.BasicProperties.ContentEncoding))
             {

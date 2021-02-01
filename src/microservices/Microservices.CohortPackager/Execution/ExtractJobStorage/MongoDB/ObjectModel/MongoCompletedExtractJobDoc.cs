@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+﻿
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 
@@ -11,7 +11,7 @@ namespace Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.Objec
         public DateTime CompletedAt { get; set; }
 
         public MongoCompletedExtractJobDoc(
-            [NotNull] MongoExtractJobDoc extractJobDoc,
+             MongoExtractJobDoc extractJobDoc,
             DateTime completedAt
         ) : base(extractJobDoc)
         {
